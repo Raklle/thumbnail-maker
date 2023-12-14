@@ -17,7 +17,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/photos")
-class PhotosController (private val dbService: DBService, private val h2Repository: H2Repository) {
+class PhotosController (private val dbService: DBService) {
 
     @GetMapping("/test")
     fun testEndpoint(): String {
@@ -34,39 +34,97 @@ class PhotosController (private val dbService: DBService, private val h2Reposito
     @ResponseBody
     fun upload(@RequestParam("file") file: MultipartFile, ): ResponseEntity<String> {
         return try {
+            val ticketID = dbService.createTicket()
+            val image = Image(original = file.bytes, ticketID = ticketID)
+            val savedImage = dbService.uploadImage(image)
 
-
-            val image = Image(original = file.bytes)
-
-            // this needs to be pushed to the service
-            val savedImage = h2Repository.save(image)
-
-            ResponseEntity.ok("File uploaded successfully! The imageID is: ${savedImage.imageID}")
+            ResponseEntity.ok("File uploaded successfully! The ticketID is: $ticketID")
         } catch (e: Exception) {
             ResponseEntity.status(500).body("Failed to upload file: ${e.message}")
         }
     }
 
-    @GetMapping("/{imageId}", produces = [MediaType.IMAGE_JPEG_VALUE])
-    fun getImagesById(@PathVariable imageId: Long): ResponseEntity<ByteArray> {
-        val image = h2Repository.findByImageID(imageId)
+    @PostMapping("/upload/bulk")
+    @ResponseBody
+    fun upload(@RequestParam("files") files: List<MultipartFile>): ResponseEntity<String> {
+        return try {
+            val ticketID = dbService.createTicket()
+            val imageList = files.map { Image(original = it.bytes, ticketID = ticketID) }
+            val savedImages = dbService.uploadImages(imageList)
 
-        return if (image != null) {
+            ResponseEntity.ok("Files uploaded successfully! The ticketID is: $ticketID")
+        } catch (e: Exception) {
+            ResponseEntity.status(500).body("Failed to upload files: ${e.message}")
+        }
+    }
+
+
+    @GetMapping("/{imageId}")
+    fun getImagesById(
+        @PathVariable imageId: Long,
+        @RequestParam(required = false, defaultValue = "original") imageSize: String
+    ): ResponseEntity<ByteArray> {
+        val imageOptional = dbService.getImageById(imageId)
+
+        return if (imageOptional.isPresent) {
+            val image = imageOptional.get()
+            val imageBytes = getImageBySize(image, imageSize)
+            val fileName = "image_${imageSize.lowercase()}.jpg"
+
             ResponseEntity.ok()
-                .header("Content-Disposition", "inline;filename=image.jpg")
-                .body(image.original)
+                .header("Content-Disposition", "inline;filename=$fileName")
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imageBytes)
+
         } else {
             ResponseEntity.notFound().build()
         }
     }
 
     @GetMapping("/tickets/{ticketID}")
-    fun getPhotos(@PathVariable ticketID: String) {
+    fun getPhotos(
+        @PathVariable ticketID: String,
+        @RequestParam(required = false, defaultValue = "original") imageSize: String
+    ): ResponseEntity<List<ByteArray?>> {
+        val images = dbService.getImagesByTicket(ticketID)
 
+        return if (images.isNotEmpty()) {
+            val imageResponses = images.map { image ->
+                getImageBySize(image, imageSize)
+            }
+            ResponseEntity.ok()
+//                .contentType(MediaType.IMAGE_JPEG)
+                .body(imageResponses)
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 
     @GetMapping("/photos")
-    fun getAllPhotos() {
+    fun getAllPhotos(
+        @RequestParam(required = false, defaultValue = "original") imageSize: String
+    ): ResponseEntity<List<ByteArray?>> {
+        val images = dbService.getImages()
 
+        return if (images.isNotEmpty()) {
+            val imageResponses = images.map { image ->
+                getImageBySize(image, imageSize)
+            }
+            ResponseEntity.ok()
+//                .contentType(MediaType.IMAGE_JPEG)
+                .body(imageResponses)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    private fun getImageBySize(image: Image, imageSize: String): ByteArray? {
+        return when (imageSize.lowercase()) {
+            "original" -> image.original
+            "small" -> image.small
+            "medium" -> image.medium
+            "big" -> image.big
+            else -> image.original
+        }
     }
 }
