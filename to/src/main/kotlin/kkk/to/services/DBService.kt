@@ -2,17 +2,16 @@ package kkk.to.services
 
 import kkk.to.models.Image
 import kkk.to.repositories.H2Repository
+import kkk.to.util.Size
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
 class DBService @Autowired constructor(
     private val h2Repository: H2Repository
 ) {
-    private var lastTicketID: Long = -1
+    private var lastTicketID: Long = 0
     fun createTicket(): String {
         lastTicketID += 1
         return lastTicketID.toString()
@@ -41,7 +40,7 @@ class DBService @Autowired constructor(
 //    }
 
     fun uploadImage(image: Image): Image {
-        return h2Repository.save(image);
+        return h2Repository.save(image)
     }
 
     fun uploadImages(images: List<Image>): List<Image> {
@@ -49,7 +48,7 @@ class DBService @Autowired constructor(
     }
 
     fun getImages(): MutableList<Image> {
-        return h2Repository.findAll();
+        return h2Repository.findAll()
     }
 
     fun getImageById(id: Long): Optional<Image> {
@@ -60,12 +59,12 @@ class DBService @Autowired constructor(
         return h2Repository.findByTicketID(id)
     }
 
-    fun setData(image: Image, data: ByteArray, size: String) {
+    fun setData(image: Image, data: ByteArray, size: Size) {
         image.imageID?.let { h2Repository.findById(it) }?.takeIf { it.isPresent }?.get()?.apply {
             when (size) {
-                "small" -> small = data
-                "medium" -> medium = data
-                "big" -> big = data
+                Size.SMALL -> small = data
+                Size.MEDIUM -> medium = data
+                Size.LARGE -> large = data
                 else -> throw IllegalArgumentException("Invalid size: $size")
             }
             h2Repository.save(this)

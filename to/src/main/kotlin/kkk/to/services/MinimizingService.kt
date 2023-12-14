@@ -20,7 +20,9 @@ class MinimizingService {
         baos.close()
         return byteArray
     }
-    //supports  JPEG, PNG, GIF and BMP
+    /**
+    supports  JPEG, PNG, GIF and BMP
+     **/
     fun minimize(image: Image, size: Size) : ByteArray{
 
         var thumbnail: BufferedImage? = null

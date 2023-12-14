@@ -3,18 +3,18 @@ package kkk.to.controllers
 import kkk.to.models.Image
 import kkk.to.services.DBService
 import kkk.to.services.MinimizingService
+import kkk.to.util.Size
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.util.concurrent.Callable
-import java.util.function.Function
 
 @RestController
 @RequestMapping("/photos")
-class PhotosController (private val dbService: DBService, private val mnService: MinimizingService) {
+class PhotosController (private val dbService: DBService) {
+    val mnService = MinimizingService()
 
     @GetMapping("/test")
     fun testEndpoint(): String {
@@ -29,7 +29,7 @@ class PhotosController (private val dbService: DBService, private val mnService:
             val image = Image(original = file.bytes, ticketID = ticketID)
             val savedImage = dbService.uploadImage(image)
 
-            val sizes = Flux.just("small", "medium", "big")
+            val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
 
             sizes.flatMap { size ->
                 Mono.fromCallable { mnService.minimize(savedImage, size) }
@@ -52,9 +52,9 @@ class PhotosController (private val dbService: DBService, private val mnService:
             val imageList = files.map { Image(original = it.bytes, ticketID = ticketID) }
             val savedImages = dbService.uploadImages(imageList)
 
-            val sizes = Flux.just("small", "medium", "big")
+            val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
 
-            val processImage = { image: Image, size: String ->
+            val processImage = { image: Image, size: Size ->
                 Mono.fromCallable { mnService.minimize(image, size) }
                     .flatMap { minimizedImage ->
                         Mono.fromCallable { dbService.setData(image, minimizedImage, size) }
@@ -135,11 +135,10 @@ class PhotosController (private val dbService: DBService, private val mnService:
     }
 
     private fun getImageBySize(image: Image, imageSize: String): ByteArray? {
-        return when (imageSize.lowercase()) {
-            "original" -> image.original
-            "small" -> image.small
-            "medium" -> image.medium
-            "big" -> image.big
+        return when (imageSize.uppercase()) {
+            "SMALL" -> image.small
+            "MEDIUM" -> image.medium
+            "LARGE" -> image.large
             else -> image.original
         }
     }
