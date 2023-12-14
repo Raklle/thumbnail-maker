@@ -1,13 +1,40 @@
 package kkk.to.services
 
-// Probably we will use polymorphism rather than factory
+import kkk.to.models.Image
+import kkk.to.util.Size
+import net.coobird.thumbnailator.Thumbnails
+import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import javax.imageio.ImageIO
+
 class MinimizingService {
+    private val format: String = "png"
+    @Throws(IOException::class)
+    private fun toByteArray(bufferedImage: BufferedImage?): ByteArray {
+        val baos = ByteArrayOutputStream()
+        ImageIO.write(bufferedImage, format, baos)
+        baos.flush()
+        val byteArray: ByteArray = baos.toByteArray()
+        baos.close()
+        return byteArray
+    }
+    //supports  JPEG, PNG, GIF and BMP
+    fun minimize(image: Image, size: Size) : ByteArray{
 
-    fun minimize(a: String) {
+        var thumbnail: BufferedImage? = null
+        try {
+            val bufferedImage = ImageIO.read(ByteArrayInputStream(image.original))
+            thumbnail = Thumbnails.of(bufferedImage)
+                    .size(size.width,size.height)
+                    .outputFormat(format)
+                    .asBufferedImage()
 
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return toByteArray(thumbnail)
     }
 
-    fun minimize(a: Int) {
-
-    }
 }
