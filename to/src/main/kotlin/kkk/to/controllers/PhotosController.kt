@@ -3,7 +3,6 @@ package kkk.to.controllers
 import kkk.to.models.Image
 import kkk.to.services.DBService
 import kkk.to.services.HandlingService
-import kkk.to.services.MinimizingService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -12,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/photos")
 class PhotosController (private val dbService: DBService, private val handler: HandlingService) {
-    val mnService = MinimizingService()
 
     @GetMapping("/test")
     fun testEndpoint(): String {
