@@ -2,18 +2,16 @@ package kkk.to.controllers
 
 import kkk.to.models.Image
 import kkk.to.services.DBService
+import kkk.to.services.HandlingService
 import kkk.to.services.MinimizingService
-import kkk.to.util.Size
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/photos")
-class PhotosController (private val dbService: DBService) {
+class PhotosController (private val dbService: DBService, private val handler: HandlingService) {
     val mnService = MinimizingService()
 
     @GetMapping("/test")
@@ -26,17 +24,7 @@ class PhotosController (private val dbService: DBService) {
     fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
         return try {
             val ticketID = dbService.createTicket()
-            val image = Image(original = file.bytes, ticketID = ticketID)
-            val savedImage = dbService.uploadImage(image)
-
-            val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
-
-            sizes.flatMap { size ->
-                Mono.fromCallable { mnService.minimize(savedImage, size) }
-                    .flatMap { minimizedImage ->
-                        Mono.fromCallable { dbService.setData(savedImage, minimizedImage, size) }
-                    }
-            }.subscribe()
+            handler.handleSingleImage(file.bytes, ticketID)
 
             ResponseEntity.ok("File uploaded successfully! The ticketID is: $ticketID")
         } catch (e: Exception) {
@@ -49,24 +37,7 @@ class PhotosController (private val dbService: DBService) {
     fun upload(@RequestParam("files") files: List<MultipartFile>): ResponseEntity<String> {
         return try {
             val ticketID = dbService.createTicket()
-            val imageList = files.map { Image(original = it.bytes, ticketID = ticketID) }
-            val savedImages = dbService.uploadImages(imageList)
-
-            val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
-
-            val processImage = { image: Image, size: Size ->
-                Mono.fromCallable { mnService.minimize(image, size) }
-                    .flatMap { minimizedImage ->
-                        Mono.fromCallable { dbService.setData(image, minimizedImage, size) }
-                    }
-            }
-
-            val imageFlux = Flux.fromIterable(savedImages)
-                .flatMap { image ->
-                    sizes.flatMap { size -> processImage(image, size) }
-                }
-
-            imageFlux.subscribe()
+            handler.handleManyImages(files, ticketID)
 
             ResponseEntity.ok("Files uploaded successfully! The ticketID is: $ticketID")
         } catch (e: Exception) {
