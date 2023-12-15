@@ -16,28 +16,6 @@ class DBService @Autowired constructor(
         lastTicketID += 1
         return lastTicketID.toString()
     }
-//
-//    fun updatePhoto(id: String, photo: Image) {
-//
-//    }
-
-//    fun saveImage(file: Mono<FilePart>): Mono<Images> {
-//        return file.flatMap { part ->
-//            part.content().collectList().map { dataBuffers ->
-//                val byteArray = dataBuffers.flatMap { it.asByteBuffer().toByteArray().toList() }.toByteArray()
-//                val imageEntity = Images(original = byteArray)
-//                h2Repository.save(imageEntity)
-//            }.flatMap { it }
-//        }
-//    }
-
-//    fun saveImage(file: FilePart): Image {
-//
-//    }
-
-//    fun getPhoto(id: String): Images? {
-//
-//    }
 
     fun uploadImage(image: Image): Image {
         return h2Repository.save(image)
@@ -65,36 +43,18 @@ class DBService @Autowired constructor(
                 Size.SMALL -> small = data
                 Size.MEDIUM -> medium = data
                 Size.LARGE -> large = data
-                else -> throw IllegalArgumentException("Invalid size: $size")
+//                else -> throw IllegalArgumentException("Invalid size: $size")
             }
             h2Repository.save(this)
         }
     }
 
+    fun getImagesToMinimize(size: Size): List<Image>{
+        return when (size) {
+            Size.SMALL -> h2Repository.findAll().filter{ it.small == null }
+            Size.MEDIUM -> h2Repository.findAll().filter{ it.medium == null }
+            Size.LARGE -> h2Repository.findAll().filter{ it.large == null }
+        }
+    }
 
-//    fun setSmall(image: Image, data: ByteArray) {
-//        image.imageID?.let { h2Repository.findById(it) }?.takeIf { it.isPresent }?.get()?.apply {
-//            small = data
-//            h2Repository.save(this)
-//        }
-//    }
-//
-//
-//    fun setMediumById(id: Long, data: ByteArray) {
-//        val imageOptional = h2Repository.findById(id)
-//        if (imageOptional.isPresent) {
-//            val image = imageOptional.get()
-//            image.medium = data
-//            h2Repository.save(image)
-//        }
-//    }
-//
-//    fun setBigById(id: Long, data: ByteArray) {
-//        val imageOptional = h2Repository.findById(id)
-//        if (imageOptional.isPresent) {
-//            val image = imageOptional.get()
-//            image.big = data
-//            h2Repository.save(image)
-//        }
-//    }
 }
