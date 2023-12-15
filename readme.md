@@ -3,25 +3,24 @@
 
 ## M1 - 15.12.2023
 
-<ul>
-<li>Inicjalizacja projektu</li>
-<li>Podpięcie testowej bazy H2</li>
-<li>Zrealizowanie architektury pokazanej na zajęciach z pewnymi zmianami</li>
-<img src="arch.png" alt="architecture">
-<li>Dodanie przyjmowania pojedynczego zdjęcia w requeście</li>
-<li>Dodanie zapisywania zdjęć w bazie</li>
-<li>Dodanie GET endpointów do pobierania zdjęć z bazy</li>
-<li>Dodanie przyjmowania wielu zdjęć w requeście</li>
-<li>Dodanie tworzenia miniatur</li>
-<li>Dodanie reaktywnego przetwarzania wysłanych zdjęć</li>
-</ul>
+- **Inicjalizacja projektu**
+- **Podpięcie testowej bazy H2**
+- **Zrealizowanie architektury**
+  ![Architektura](arch.png)
+- **Dodanie przyjmowania pojedynczego zdjęcia w requeście**
+- **Dodanie zapisywania zdjęć w bazie**
+- **Dodanie GET endpointów do pobierania zdjęć z bazy**
+- **Dodanie przyjmowania wielu zdjęć w requeście**
+- **Dodanie tworzenia miniatur**
+- **Dodanie reaktywnego przetwarzania wysłanych zdjęć**
 
 ## Najbliższe plany
-<ul>
-<li>Zmiana bazy H2 na docelową bazę aplikacji</li>
-<li>Stworzenie cache'u po stronie bazy, aby uodpornić aplikację na crash'e</li>
-<li>Frontend i komunikacja</li>
-</ul>
+- **Zmiana bazy H2 na docelową bazę aplikacji**
+- **Stworzenie cache'u po stronie bazy, aby uodpornić aplikację na crash'e**
+- **Frontend i komunikacja**
+- **Dodanie testów**
+- **Dodanie rozróżnienia w odpowiedzi endpoitów czy proces zmiejszania obrazu się nie powiódł, czy jeszcze nie został wykonany**
+
 
 ## Endpunkty
 
