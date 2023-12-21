@@ -7,6 +7,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/photos")
@@ -17,29 +18,31 @@ class PhotosController (private val dbService: DBService, private val handler: H
         return "Testing"
     }
 
-    @PostMapping("/upload")
+//    @PostMapping("/upload")
+//    @ResponseBody
+//    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
+//        return try {
+//            val ticketID = dbService.createTicket()
+//            handler.handleSingleImage(file.bytes, ticketID)
+//
+//            ResponseEntity.ok("File uploaded successfully! The ticketID is: $ticketID")
+//        } catch (e: Exception) {
+//            ResponseEntity.status(500).body("Failed to upload file: ${e.message}")
+//        }
+//    }
+
+    @PostMapping
     @ResponseBody
-    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        return try {
-            val ticketID = dbService.createTicket()
-            handler.handleSingleImage(file.bytes, ticketID)
+    fun upload(@RequestParam("files") files: List<MultipartFile>): Mono<ResponseEntity<String>> {
+        return Mono.fromCallable {
+            try {
+                val ticketID = dbService.createTicket()
+                handler.handleManyImages(files, ticketID)
 
-            ResponseEntity.ok("File uploaded successfully! The ticketID is: $ticketID")
-        } catch (e: Exception) {
-            ResponseEntity.status(500).body("Failed to upload file: ${e.message}")
-        }
-    }
-
-    @PostMapping("/upload/bulk")
-    @ResponseBody
-    fun upload(@RequestParam("files") files: List<MultipartFile>): ResponseEntity<String> {
-        return try {
-            val ticketID = dbService.createTicket()
-            handler.handleManyImages(files, ticketID)
-
-            ResponseEntity.ok("Files uploaded successfully! The ticketID is: $ticketID")
-        } catch (e: Exception) {
-            ResponseEntity.status(500).body("Failed to upload files: ${e.message}")
+                ResponseEntity.ok("Files uploaded successfully! The ticketID is: $ticketID")
+            } catch (e: Exception) {
+                ResponseEntity.status(500).body("Failed to upload files: ${e.message}")
+            }
         }
     }
 

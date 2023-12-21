@@ -6,27 +6,28 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 
 @Service
 class HandlingService(private val dbService: DBService) {
     private val mnService =  MinimizingService()
 
-    fun handleSingleImage(fileBytes: ByteArray, ticketID: String){
-        val image = Image(original = fileBytes, ticketID = ticketID)
-        val savedImage = dbService.uploadImage(image)
+//    fun handleSingleImage(fileBytes: ByteArray, ticketID: String){
+//        val image = Image(original = fileBytes, ticketID = ticketID)
+//        val savedImage = dbService.uploadImage(image)
+//
+//        val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
+//
+//        sizes.flatMap { size ->
+//            Mono.fromCallable { mnService.minimize(savedImage, size) }
+//                .flatMap { minimizedImage ->
+//                    Mono.fromCallable { dbService.setData(savedImage, minimizedImage, size) }
+//                }
+//        }.subscribe()
+//
+//    }
 
-        val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
-
-        sizes.flatMap { size ->
-            Mono.fromCallable { mnService.minimize(savedImage, size) }
-                .flatMap { minimizedImage ->
-                    Mono.fromCallable { dbService.setData(savedImage, minimizedImage, size) }
-                }
-        }.subscribe()
-
-    }
-
-    fun handleManyImages(files: List<MultipartFile>, ticketID: String){
+    fun handleManyImages(files: List<MultipartFile>, ticketID: String) : Mono<Void> {
 
         val imageList = files.map { Image(original = it.bytes, ticketID = ticketID) }
         val savedImages = dbService.uploadImages(imageList)
@@ -44,8 +45,9 @@ class HandlingService(private val dbService: DBService) {
             .flatMap { image ->
                 sizes.flatMap { size -> processImage(image, size) }
             }
+            .subscribeOn(Schedulers.parallel()) // Run in parallel
 
-        imageFlux.subscribe()
+        return imageFlux.then()
     }
 
 }
