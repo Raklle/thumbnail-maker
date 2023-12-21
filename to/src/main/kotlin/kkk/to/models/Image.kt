@@ -59,4 +59,13 @@ data class Image(
         result = 31 * result + (large?.contentHashCode() ?: 0)
         return result
     }
+
+     fun getImageBySize(imageSize: String): ByteArray? {
+        return when (imageSize.uppercase()) {
+            "SMALL" -> small
+            "MEDIUM" -> medium
+            "LARGE" -> large
+            else -> original
+        }
+    }
 }

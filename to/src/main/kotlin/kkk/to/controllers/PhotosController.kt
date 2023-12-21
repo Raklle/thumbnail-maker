@@ -56,7 +56,7 @@ class PhotosController (private val dbService: DBService, private val handler: H
 
         return if (imageOptional.isPresent) {
             val image = imageOptional.get()
-            val imageBytes = getImageBySize(image, imageSize)
+            val imageBytes = image.getImageBySize(imageSize)
             val fileName = "image_${imageSize.lowercase()}.jpg"
 
             ResponseEntity.ok()
@@ -75,17 +75,7 @@ class PhotosController (private val dbService: DBService, private val handler: H
         @RequestParam(required = false, defaultValue = "original") imageSize: String
     ): ResponseEntity<List<ByteArray?>> {
         val images = dbService.getImagesByTicket(ticketID)
-
-        return if (images.isNotEmpty()) {
-            val imageResponses = images.map { image ->
-                getImageBySize(image, imageSize)
-            }
-            ResponseEntity.ok()
-//                .contentType(MediaType.IMAGE_JPEG)
-                .body(imageResponses)
-        } else {
-            ResponseEntity.notFound().build()
-        }
+        return getResponseForImageList(images, imageSize)
     }
 
     @GetMapping("/photos")
@@ -93,25 +83,19 @@ class PhotosController (private val dbService: DBService, private val handler: H
         @RequestParam(required = false, defaultValue = "original") imageSize: String
     ): ResponseEntity<List<ByteArray?>> {
         val images = dbService.getImages()
+        return getResponseForImageList(images, imageSize)
+    }
 
+    private fun getResponseForImageList(images: List<Image>, imageSize: String): ResponseEntity<List<ByteArray?>> {
         return if (images.isNotEmpty()) {
             val imageResponses = images.map { image ->
-                getImageBySize(image, imageSize)
+                image.getImageBySize(imageSize)
             }
             ResponseEntity.ok()
 //                .contentType(MediaType.IMAGE_JPEG)
                 .body(imageResponses)
         } else {
             ResponseEntity.notFound().build()
-        }
-    }
-
-    private fun getImageBySize(image: Image, imageSize: String): ByteArray? {
-        return when (imageSize.uppercase()) {
-            "SMALL" -> image.small
-            "MEDIUM" -> image.medium
-            "LARGE" -> image.large
-            else -> image.original
         }
     }
 }
