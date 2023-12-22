@@ -2,9 +2,11 @@ package kkk.to.services
 
 import kkk.to.models.Image
 import kkk.to.repositories.H2Repository
+import kkk.to.util.ImageState
 import kkk.to.util.Size
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import java.util.*
 
 @Service
@@ -20,6 +22,9 @@ class DBService @Autowired constructor(
     fun uploadImage(image: Image): Image {
         return h2Repository.save(image)
     }
+//    fun uploadImagesFlux(images: Flux<Image>): Flux<Image> {
+//        return h2Repository.saveAll(images)
+//    }
 
     fun uploadImages(images: List<Image>): List<Image> {
         return h2Repository.saveAll(images)
@@ -56,5 +61,13 @@ class DBService @Autowired constructor(
             Size.LARGE -> h2Repository.findAll().filter{ it.large == null }
         }
     }
+
+//    fun getImagesToMinimize(size: Size): List<Image>{
+//        return when (size) {
+//            Size.SMALL -> h2Repository.findAll().filter{ it.smallState == ImageState.TODO }
+//            Size.MEDIUM -> h2Repository.findAll().filter{ it.mediumState == ImageState.TODO }
+//            Size.LARGE -> h2Repository.findAll().filter{ it.largeState == ImageState.TODO }
+//        }
+//    }
 
 }

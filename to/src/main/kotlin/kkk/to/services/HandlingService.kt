@@ -27,10 +27,13 @@ class HandlingService(private val dbService: DBService) {
 //
 //    }
 
-    fun handleManyImages(files: List<MultipartFile>, ticketID: String) : Mono<Void> {
+    fun handleManyImages(files: Flux<MultipartFile>, ticketID: String) : Mono<Void> {
 
         val imageList = files.map { Image(original = it.bytes, ticketID = ticketID) }
-        val savedImages = dbService.uploadImages(imageList)
+        val savedImages = imageList.flatMap { image ->
+            Mono.fromCallable { dbService.uploadImage(image) }
+        }
+//        val savedImages = dbService.uploadImages(imageList)
 
         val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
 
@@ -41,11 +44,11 @@ class HandlingService(private val dbService: DBService) {
                 }
         }
 
-        val imageFlux = Flux.fromIterable(savedImages)
+        val imageFlux = savedImages
             .flatMap { image ->
                 sizes.flatMap { size -> processImage(image, size) }
             }
-            .subscribeOn(Schedulers.parallel()) // Run in parallel
+            .subscribeOn(Schedulers.parallel())
 
         return imageFlux.then()
     }

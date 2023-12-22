@@ -7,6 +7,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @RestController
@@ -32,10 +33,10 @@ class PhotosController (private val dbService: DBService, private val handler: H
 //    }
 
     @PostMapping
-    @ResponseBody
-    fun upload(@RequestParam("files") files: List<MultipartFile>): Mono<ResponseEntity<String>> {
+    fun upload(@RequestPart("files") files: Flux<MultipartFile>): Mono<ResponseEntity<String>> {
         return Mono.fromCallable {
             try {
+
                 val ticketID = dbService.createTicket()
                 handler.handleManyImages(files, ticketID)
 
@@ -45,7 +46,6 @@ class PhotosController (private val dbService: DBService, private val handler: H
             }
         }
     }
-
 
     @GetMapping("/{imageId}")
     fun getImagesById(
