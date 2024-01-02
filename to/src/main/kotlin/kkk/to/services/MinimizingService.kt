@@ -25,7 +25,7 @@ class MinimizingService {
     /**
     supports  JPEG, PNG, GIF and BMP
      **/
-    fun minimize(image: Image, size: Size) : ByteArray{
+    fun minimize(image: Image, size: Size) : ByteArray? {
 
         var thumbnail: BufferedImage? = null
         try {
@@ -37,6 +37,7 @@ class MinimizingService {
 
         } catch (e: IOException) {
             e.printStackTrace()
+            return null
         }
         return toByteArray(thumbnail)
     }
