@@ -4,7 +4,7 @@ import kkk.to.util.ImageState
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document(collection = "images")
+@Document("images")
 data class Image(
 
     @Id

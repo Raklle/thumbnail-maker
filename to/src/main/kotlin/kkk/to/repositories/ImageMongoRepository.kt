@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.stereotype.Repository
 
 @Repository
-@EnableMongoRepositories
+@EnableMongoRepositories(basePackages = ["kkk.to.repositories"])
 interface ImageMongoRepository : ReactiveMongoRepository<Image, String>

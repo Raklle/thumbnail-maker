@@ -1,41 +1,19 @@
 package kkk.to.services
 
 import kkk.to.models.Image
-import kkk.to.repositories.ImageMongoRepository
-import kkk.to.util.ImageState
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
+import kkk.to.util.ImageResponse
+import kkk.to.util.Size
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@Service
-class DBService @Autowired constructor(
-    private val imageMongoRepository: ImageMongoRepository
-) {
-    fun saveImages(images: Flux<Image>): Flux<Image> {
-        return imageMongoRepository.saveAll(images)
-    }
-    fun getAllImages(): Flux<Image> {
-        return imageMongoRepository.findAll()
-    }
-    fun getImageById(id: String): Mono<Image> {
-        return imageMongoRepository.findById(id)
-    }
-    fun getAllSmallImagesToMinimize(): Flux<Image> {
-        return imageMongoRepository.findAll().filter{
-            image -> image.smallState == ImageState.TO_MINIMIZE
-        }
-    }
+interface DBService {
+    fun saveImages(images: Flux<Image>): Flux<Image>
+    fun getAllImages(): Flux<ImageResponse>
+    fun getAllImagesBySize(size: Size): Flux<ImageResponse>
+    fun getImageById(id: String): Mono<ImageResponse>
+    fun getImageByIdAndSize(id: String, size: Size): Mono<ImageResponse>
+    fun getAllSmallImagesToMinimize(): Flux<Image>
+    fun getAllMediumImagesToMinimize(): Flux<Image>
+    fun getAllLargeImagesToMinimize(): Flux<Image>
 
-    fun getAllMediumImagesToMinimize(): Flux<Image> {
-        return imageMongoRepository.findAll().filter{
-                image -> image.mediumState == ImageState.TO_MINIMIZE
-        }
-    }
-
-   fun getAllLargeImagesToMinimize(): Flux<Image> {
-        return imageMongoRepository.findAll().filter{
-                image -> image.largeState == ImageState.TO_MINIMIZE
-        }
-    }
 }
