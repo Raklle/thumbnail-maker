@@ -33,7 +33,7 @@ class DBService @Autowired constructor(
         }
     }
 
-    fun getAllLargeImagesToMinimize(): Flux<Image> {
+   fun getAllLargeImagesToMinimize(): Flux<Image> {
         return imageMongoRepository.findAll().filter{
                 image -> image.largeState == ImageState.TO_MINIMIZE
         }

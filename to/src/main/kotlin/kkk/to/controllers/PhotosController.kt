@@ -3,6 +3,7 @@ package kkk.to.controllers
 import kkk.to.models.Image
 import kkk.to.services.DBService
 import kkk.to.services.HandlingService
+import kkk.to.util.ImageResponse
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -25,42 +26,58 @@ class PhotosController (private val dbService: DBService) {
     }
 
     @GetMapping("/photos")
-    fun getAllImages(): Flux<ByteArray> {
-        return dbService.getAllImages().map { image -> image.original }
+    fun getAllImages(): Flux<ImageResponse> {
+        return dbService.getAllImages().map { image ->
+            ImageResponse(image.id, image.original)
+        }
     }
 
     @GetMapping("/{id}")
-    fun getImageById(@PathVariable id: String): Mono<ByteArray> {
-        return dbService.getImageById(id).map { image -> image.original }
+    fun getImageById(@PathVariable id: String): Mono<ImageResponse> {
+        return dbService.getImageById(id).map { image ->
+            ImageResponse(image.id, image.original)
+        }
     }
 
     @GetMapping("/small/photos")
-    fun getAllSmallImages(): Flux<ByteArray> {
-        return dbService.getAllImages().mapNotNull { image -> image.small }
+    fun getAllSmallImages(): Flux<ImageResponse> {
+        return dbService.getAllImages().mapNotNull { image ->
+            image.small?.let { ImageResponse(image.id, it) }
+        }
     }
 
     @GetMapping("/small/{id}")
-    fun getSmallImageById(@PathVariable id: String): Mono<ByteArray> {
-        return dbService.getImageById(id).mapNotNull { image -> image.small }
+    fun getSmallImageById(@PathVariable id: String): Mono<ImageResponse> {
+        return dbService.getImageById(id).mapNotNull { image ->
+            image.small?.let { ImageResponse(image.id, it) }
+        }
     }
 
     @GetMapping("/medium/photos")
-    fun getAllMediumImages(): Flux<ByteArray> {
-        return dbService.getAllImages().mapNotNull { image -> image.medium }
+    fun getAllMediumImages(): Flux<ImageResponse> {
+        return dbService.getAllImages().mapNotNull { image ->
+            image.medium?.let { ImageResponse(image.id, it) }
+        }
     }
 
     @GetMapping("/medium/{id}")
-    fun getMediumImageById(@PathVariable id: String): Mono<ByteArray> {
-        return dbService.getImageById(id).mapNotNull { image -> image.medium }
+    fun getMediumImageById(@PathVariable id: String): Mono<ImageResponse> {
+        return dbService.getImageById(id).mapNotNull { image ->
+            image.medium?.let { ImageResponse(image.id, it) }
+        }
     }
 
     @GetMapping("/large/photos")
-    fun getAllLargeImages(): Flux<ByteArray> {
-        return dbService.getAllImages().mapNotNull { image -> image.large }
+    fun getAllLargeImages(): Flux<ImageResponse> {
+        return dbService.getAllImages().mapNotNull { image ->
+            image.large?.let { ImageResponse(image.id, it) }
+        }
     }
 
     @GetMapping("/large/{id}")
-    fun getLargeImageById(@PathVariable id: String): Mono<ByteArray> {
-        return dbService.getImageById(id).mapNotNull { image -> image.large }
+    fun getLargeImageById(@PathVariable id: String): Mono<ImageResponse> {
+        return dbService.getImageById(id).mapNotNull { image ->
+            image.large?.let { ImageResponse(image.id, it) }
+        }
     }
 }
