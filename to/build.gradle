@@ -5,6 +5,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.4'
 	id 'org.jetbrains.kotlin.jvm' version '1.9.20'
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.20'
+	id 'org.openjfx.javafxplugin' version '0.0.13'
 }
 
 group = 'kkk'
@@ -12,6 +13,11 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
+}
+
+javafx {
+	version = '17'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media', 'javafx.swing', 'javafx.web']
 }
 
 repositories {
@@ -30,6 +36,16 @@ dependencies {
 	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
+
+	implementation group: 'io.reactivex.rxjava3', name: 'rxjava', version: '3.1.7'
+	implementation group: 'org.pdfsam.rxjava3', name: 'rxjavafx', version: '3.0.2'
+
+	implementation("io.ktor:ktor-server-core-jvm:2.3.7")
+	implementation("io.ktor:ktor-server-netty-jvm:2.3.7")
+	implementation("io.ktor:ktor-server-status-pages-jvm:2.3.7")
+	implementation("io.ktor:ktor-server-default-headers-jvm:2.3.7")
+
+
 }
 
 tasks.withType(KotlinCompile) {

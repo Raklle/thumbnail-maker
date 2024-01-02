@@ -1,3 +1,3 @@
 package kkk.to.util
 
-data class ImageResponse(val id: String?, val image: ByteArray)
+data class ImageResponse(val id: String?, val state: ImageState, val image: ByteArray)
