@@ -1,56 +1,58 @@
 package kkk.to.services
 
+import jakarta.annotation.PostConstruct
 import kkk.to.models.Image
+import kkk.to.util.ImageState
 import kkk.to.util.Size
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
+import java.time.Duration
 
 @Service
-class HandlingService(private val dbService: DBService) {
-    private val mnService =  MinimizingService()
+class HandlingService(private val dbService: DBService, private val mnService: MinimizingService) {
 
-//    fun handleSingleImage(fileBytes: ByteArray, ticketID: String){
-//        val image = Image(original = fileBytes, ticketID = ticketID)
-//        val savedImage = dbService.uploadImage(image)
-//
-//        val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
-//
-//        sizes.flatMap { size ->
-//            Mono.fromCallable { mnService.minimize(savedImage, size) }
-//                .flatMap { minimizedImage ->
-//                    Mono.fromCallable { dbService.setData(savedImage, minimizedImage, size) }
-//                }
-//        }.subscribe()
-//
-//    }
-
-    fun handleManyImages(files: Flux<MultipartFile>, ticketID: String) : Mono<Void> {
-
-        val imageList = files.map { Image(original = it.bytes, ticketID = ticketID) }
-        val savedImages = imageList.flatMap { image ->
-            Mono.fromCallable { dbService.uploadImage(image) }
-        }
-//        val savedImages = dbService.uploadImages(imageList)
-
-        val sizes = Flux.just(Size.SMALL, Size.MEDIUM, Size.LARGE)
-
-        val processImage = { image: Image, size: Size ->
-            Mono.fromCallable { mnService.minimize(image, size) }
-                .flatMap { minimizedImage ->
-                    Mono.fromCallable { dbService.setData(image, minimizedImage, size) }
-                }
-        }
-
-        val imageFlux = savedImages
-            .flatMap { image ->
-                sizes.flatMap { size -> processImage(image, size) }
+    @PostConstruct
+    fun initialize() {
+        handleMinimizing()
+    }
+    fun handleMinimizing(){
+        Mono.delay(Duration.ofSeconds(2))
+            .repeatWhen { flux -> flux.delayElements(Duration.ofSeconds(2)) }
+            .subscribe {
+                handleMinimizingSmallImages(dbService.getAllSmallImagesToMinimize()).subscribe()
+                handleMinimizingMediumImages(dbService.getAllMediumImagesToMinimize()).subscribe()
+                handleMinimizingLargeImages(dbService.getAllLargeImagesToMinimize()).subscribe()
             }
-            .subscribeOn(Schedulers.parallel())
+    }
 
-        return imageFlux.then()
+    fun handleMinimizingSmallImages(images: Flux<Image>): Flux<Image> {
+        return dbService.saveImages(
+            images.flatMap { image ->
+                val minimizedImage = mnService.minimize(image, Size.SMALL)
+                Flux.just(image.copy(small = minimizedImage, smallState = ImageState.DONE))
+            }
+        )
+    }
+
+    fun handleMinimizingMediumImages(images: Flux<Image>): Flux<Image>{
+        return dbService.saveImages(
+            images.flatMap { image ->
+                val minimizedImage = mnService.minimize(image, Size.MEDIUM)
+                Flux.just(image.copy(medium = minimizedImage, mediumState = ImageState.DONE))
+            }
+        )
+    }
+
+    fun handleMinimizingLargeImages(images: Flux<Image>): Flux<Image>{
+        return dbService.saveImages(
+            images.flatMap { image ->
+                val minimizedImage = mnService.minimize(image, Size.LARGE)
+                Flux.just(image.copy(large = minimizedImage, largeState = ImageState.DONE))
+            }
+        )
     }
 
 }

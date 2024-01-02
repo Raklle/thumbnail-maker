@@ -3,12 +3,14 @@ package kkk.to.services
 import kkk.to.models.Image
 import kkk.to.util.Size
 import net.coobird.thumbnailator.Thumbnails
+import org.springframework.stereotype.Service
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import javax.imageio.ImageIO
 
+@Service
 class MinimizingService {
     private val format: String = "png"
     @Throws(IOException::class)
