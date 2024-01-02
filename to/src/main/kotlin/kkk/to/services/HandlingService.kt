@@ -32,25 +32,37 @@ class HandlingService(private val dbService: DBService, private val mnService: M
         return dbService.saveImages(
             images.flatMap { image ->
                 val minimizedImage = mnService.minimize(image, Size.SMALL)
-                Flux.just(image.copy(small = minimizedImage, smallState = ImageState.DONE))
+                if (minimizedImage != null) {
+                    Flux.just(image.copy(small = minimizedImage, smallState = ImageState.DONE))
+                } else {
+                    Flux.just(image.copy(smallState = ImageState.FAILED))
+                }
             }
         )
     }
 
-    fun handleMinimizingMediumImages(images: Flux<Image>): Flux<Image>{
+    fun handleMinimizingMediumImages(images: Flux<Image>): Flux<Image> {
         return dbService.saveImages(
             images.flatMap { image ->
                 val minimizedImage = mnService.minimize(image, Size.MEDIUM)
-                Flux.just(image.copy(medium = minimizedImage, mediumState = ImageState.DONE))
+                if (minimizedImage != null) {
+                    Flux.just(image.copy(medium = minimizedImage, mediumState = ImageState.DONE))
+                } else {
+                    Flux.just(image.copy(mediumState = ImageState.FAILED))
+                }
             }
         )
     }
 
-    fun handleMinimizingLargeImages(images: Flux<Image>): Flux<Image>{
+    fun handleMinimizingLargeImages(images: Flux<Image>): Flux<Image> {
         return dbService.saveImages(
             images.flatMap { image ->
                 val minimizedImage = mnService.minimize(image, Size.LARGE)
-                Flux.just(image.copy(large = minimizedImage, largeState = ImageState.DONE))
+                if (minimizedImage != null) {
+                    Flux.just(image.copy(large = minimizedImage, largeState = ImageState.DONE))
+                } else {
+                    Flux.just(image.copy(largeState = ImageState.FAILED))
+                }
             }
         )
     }
