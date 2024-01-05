@@ -17,8 +17,9 @@ class PhotosController (private val dbService: DBService) {
         return "Testing"
     }
 
-    @PostMapping
+    @PostMapping("/photos")
     fun saveImages(@RequestParam("files") images: ArrayList<MultipartFile>): Flux<String> {
+        println("Request")
         return dbService.saveImages(Flux.fromIterable(images).map{
             image -> Image(original = image.bytes)
         }).mapNotNull { image -> image.id + "\n"}
@@ -36,7 +37,7 @@ class PhotosController (private val dbService: DBService) {
 
     @GetMapping("/small/photos")
     fun getAllSmallImages(): Flux<ImageResponse> {
-        return dbService.getAllImagesBySize(Size.LARGE)
+        return dbService.getAllImagesBySize(Size.SMALL)
     }
     @GetMapping("/medium/photos")
     fun getAllMediumImages(): Flux<ImageResponse> {

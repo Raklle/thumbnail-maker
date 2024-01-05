@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            minHeight="550.0" minWidth="850.0"
+            styleClass="gallery-pane"
+            stylesheets="css/gallery.css"
+            fx:controller="controller.GalleryController">
+    <top>
+        <HBox styleClass="form-box" spacing="8">
+            <Button text="Small" onAction="#onSizeChangeSmall"/>
+            <Button text="Medium" onAction="#onSizeChangeMedium"/>
+            <Button text="Large" onAction="#onSizeChangeLarge"/>
+        </HBox>
+    </top>
+    <left>
+        <ListView fx:id="imagesListView" prefWidth="540" prefHeight="540"/>
+    </left>
+    <center>
+        <Pane prefHeight="540" prefWidth="540">
+            <ImageView fx:id="imageView"/>
+        </Pane>
+    </center>
+    <bottom>
+        <VBox spacing="8">
+            <HBox alignment="BASELINE_RIGHT" spacing="8">
+                <Button text="Delete" styleClass="delete-button" onAction="#clearUploadList"/>
+                <Button text="Upload" styleClass="upload-button" onAction="#uploadPhotos"/>
+            </HBox>
+            <StackPane fx:id="fileDropPane" styleClass="file-drop-pane" onDragOver="#handleDragOver" onDragDropped="#handleDragDropped"  prefHeight="200">
+                <ListView fx:id="draggedFilesNamesList"/>
+                <Label fx:id="dropPaneLabel" text="Drag your files here"/>
+            </StackPane>
+        </VBox>
+    </bottom>
+</BorderPane>
