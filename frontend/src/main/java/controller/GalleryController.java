@@ -3,6 +3,7 @@ package controller;
 
 import api.CommunicationHandler;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,20 +16,11 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import model.Gallery;
 import model.Image;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import util.PhotoSize;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -174,7 +166,7 @@ public class GalleryController {
             );
         } catch (IOException e) {
 
-            imageView.imageProperty().bind(null);
+            imageView.imageProperty().bind(getPlaceholder("F"));
         }
 
     }
@@ -184,5 +176,24 @@ public class GalleryController {
         CommunicationHandler.getAllPhotos(galleryModel, size);
     }
 
+    private ObjectProperty<javafx.scene.image.Image> getPlaceholder(String size){
+        try {
+            return new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(size))));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
+    }
+
+    public static String buildFilePath(String size) {
+        String basePath = "frontend/src/main/resources/assets/placeholder";
+        String fileExtension = ".png";
+
+        return switch (size.toLowerCase()) {
+            case "small" -> basePath + "_small" + fileExtension;
+            case "medium" -> basePath + "_medium" + fileExtension;
+            case "large" -> basePath + "_large" + fileExtension;
+            default -> basePath + fileExtension;
+        };
+    }
 }
