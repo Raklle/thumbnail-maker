@@ -33,6 +33,12 @@ class MongoService @Autowired constructor(
         val aggregation: Aggregation = Aggregation.newAggregation(projectOperation)
         return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
     }
+
+    override fun getAllImagesBySize(size: Size): Flux<ImageResponse> {
+        val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
+        val aggregation: Aggregation = Aggregation.newAggregation(projectOperation)
+        return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
+    }
     override fun getImageById(id: String): Mono<ImageResponse> {
         val matchOperation: MatchOperation = Aggregation.match(Criteria.where("_id").`is`(id))
         val projectOperation: AggregationOperation = project().
@@ -43,10 +49,8 @@ class MongoService @Autowired constructor(
     }
     override fun getImageByIdAndSize(id: String, size: Size): Mono<ImageResponse> {
         val matchOperation: MatchOperation = Aggregation.match(Criteria.where("_id").`is`(id))
-
         val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
         val aggregation: Aggregation = Aggregation.newAggregation(matchOperation, projectOperation)
-
         return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java).next()
     }
     override fun getAllSmallImagesToMinimize(): Flux<Image> {
@@ -66,13 +70,17 @@ class MongoService @Autowired constructor(
        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation)
        return mongoTemplate.aggregate(aggregation, "images", Image::class.java)
     }
-    override fun getAllImagesBySize(size: Size): Flux<ImageResponse> {
-//        val matchOperation: MatchOperation = Aggregation.match(Criteria.where("smallState").`is`(ImageState.DONE))
-        val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
-//        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation, projectOperation)
-        val aggregation: Aggregation = Aggregation.newAggregation(projectOperation)
-        return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
+
+    override fun getAllImagesToMinimize(): Flux<Image> {
+        val matchOperation: MatchOperation = Aggregation.match(Criteria.where("smallState").`is`(ImageState.TO_MINIMIZE)
+            .orOperator(Criteria.where("mediumState").`is`(ImageState.TO_MINIMIZE))
+            .orOperator(Criteria.where("largeState").`is`(ImageState.TO_MINIMIZE)))
+        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation)
+        //sorted by creation time
+        return mongoTemplate.aggregate(aggregation, "images", Image::class.java)
+            .sort { obj1, obj2 -> obj1.id?.let { obj2.id?.compareTo(it) } ?: 0 }
     }
+
 
     private fun getProjectionToImageResponse(size:Size): ProjectionOperation {
         return when (size) {
@@ -92,7 +100,6 @@ class MongoService @Autowired constructor(
                         andExpression("largeState").`as`("state")
                     }
                 }
-
     }
 
 }

@@ -26,19 +26,21 @@ class MinimizingService {
     supports  JPEG, PNG, GIF and BMP
      **/
     fun minimize(image: Image, size: Size) : ByteArray? {
-
-        var thumbnail: BufferedImage? = null
+        val thumbnail: BufferedImage?
         try {
             val bufferedImage = ImageIO.read(ByteArrayInputStream(image.original))
             thumbnail = Thumbnails.of(bufferedImage)
                     .size(size.width,size.height)
                     .outputFormat(format)
                     .asBufferedImage()
-
+        } catch (e: NullPointerException) {
+            println("\u001B[31mFile: ${image.id} corrupted or format is not supported\u001B[0m")
+            return null
         } catch (e: IOException) {
             e.printStackTrace()
             return null
         }
+
         return toByteArray(thumbnail)
     }
 
