@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.GridPane?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             minHeight="550.0" minWidth="850.0"
@@ -21,13 +22,16 @@
         </HBox>
     </top>
     <left>
-        <ListView fx:id="imagesListView" prefWidth="540" prefHeight="540"/>
+        <ScrollPane prefHeight="540">
+        <GridPane fx:id="imagesGridPane" hgap="10" vgap="10"/>
+        </ScrollPane>
+<!--        <ListView fx:id="imagesListView" prefWidth="540" prefHeight="540"/>-->
     </left>
-    <center>
-        <Pane prefHeight="540" prefWidth="540">
+    <right>
+        <Pane >
             <ImageView fx:id="imageView"/>
         </Pane>
-    </center>
+    </right>
     <bottom>
         <VBox spacing="8">
             <HBox alignment="BASELINE_RIGHT" spacing="8">

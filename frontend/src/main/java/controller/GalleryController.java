@@ -2,6 +2,9 @@ package controller;
 
 
 import api.CommunicationHandler;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,12 +14,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import model.Gallery;
 import model.Image;
 import util.PhotoSize;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +34,15 @@ public class GalleryController {
 
     @FXML
     private TextField imageNameField;
+
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     @FXML
     private ImageView imageView;
 
+
     @FXML
-    private ListView<Image> imagesListView;
+    private GridPane imagesGridPane;
 
     @FXML
     private StackPane fileDropPane;
@@ -58,35 +67,36 @@ public class GalleryController {
     @FXML
     public void initialize() {
 
-        imagesListView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Image item, boolean empty) {
-                super.updateItem(item, empty);
+//        imagesListView.setCellFactory(param -> new ListCell<>() {
+//            @Override
+//            protected void updateItem(Image item, boolean empty) {
+//                super.updateItem(item, empty);
+//
+//                if (empty || item == null) {
+//                    setText(null);
+//                    setGraphic(null);
+//                } else {
+//                    StackPane stackPane = new StackPane();
+//                    ImageView imageView = new ImageView(item.getPhotoData());
+//                    imageView.setPreserveRatio(true);
+////                    imageView.setFitHeight(50);
+//                    stackPane.getChildren().add(imageView);
+//
+//                    setGraphic(stackPane);
+//                }
+//            }
+//        });
+//
+//        imagesListView.getSelectionModel().selectedItemProperty().addListener(
+//                (observable, oldValue, newValue) -> {
+//
+//                    bindSelectedPhoto(newValue);
+//                }
+//        );
 
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    StackPane stackPane = new StackPane();
-                    ImageView imageView = new ImageView(item.getPhotoData());
-                    imageView.setPreserveRatio(true);
-//                    imageView.setFitHeight(50);
-                    stackPane.getChildren().add(imageView);
-
-                    setGraphic(stackPane);
-                }
-            }
-        });
-
-        imagesListView.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
-
-                    bindSelectedPhoto(newValue);
-                }
-        );
         draggedFilesNamesList.setItems(draggedFilesNames);
 
-        scheduler.scheduleAtFixedRate(this::fillGallery, 0, 10, TimeUnit.SECONDS);
+
     }
 
     @FXML
@@ -155,9 +165,10 @@ public class GalleryController {
 
     public void setModel(Gallery gallery) throws IOException {
         this.galleryModel = gallery;
-        imagesListView.setItems(gallery.getPhotos());
-        imagesListView.getSelectionModel().select(0);
-        fillGallery();
+//        imagesListView.setItems(gallery.getPhotos());
+//        imagesListView.getSelectionModel().select(0);
+//        fillGallery();
+        scheduler.scheduleAtFixedRate(this::fillGallery, 0, 2, TimeUnit.SECONDS);
     }
 
     private void bindSelectedPhoto(Image selectedPhoto) {
@@ -166,20 +177,70 @@ public class GalleryController {
                     photo -> imageView.imageProperty().bind(photo.photoDataProperty())
             );
         } catch (IOException e) {
-            selectedPhoto.setPlaceholder(PhotoSize.ORIGINAL);
-            imageView.imageProperty().bind(selectedPhoto.photoDataProperty());
+
+            imageView.imageProperty().bind(getPlaceholder("F"));
         }
 
     }
 
     // needs to be called every 1s before the socket works
-    private void fillGallery() {
+
+    private void fillGallery(){
         try {
             CommunicationHandler.getAllPhotos(galleryModel, size);
-            System.out.println("Gallery filled");
+
+            Platform.runLater(() -> {
+                imagesGridPane.getChildren().clear();
+                int row = 0;
+                int col = 0;
+
+                for (Image photo : galleryModel.getPhotos()) {
+                    StackPane stackPane = new StackPane();
+                    ImageView imageView = new ImageView(photo.getPhotoData());
+                    imageView.setPreserveRatio(true);
+
+                    imageView.setOnMouseClicked(e -> {
+                        bindSelectedPhoto(photo);
+                    });
+
+                    stackPane.getChildren().add(imageView);
+
+                    imagesGridPane.add(stackPane, col, row);
+                    col++;
+
+                    if (col == 2 && size == PhotoSize.LARGE ||
+                            col == 3 && size == PhotoSize.MEDIUM ||
+                            col == 5 && size == PhotoSize.SMALL){
+                        col = 0;
+                        row++;
+                    }
+                }
+            });
+
         } catch (IOException e) {
+            System.out.println("Gallery filled");
             e.printStackTrace();
         }
     }
 
+    private ObjectProperty<javafx.scene.image.Image> getPlaceholder(String size){
+        try {
+            return new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(size))));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static String buildFilePath(String size) {
+        String basePath = "frontend/src/main/resources/assets/placeholder";
+        String fileExtension = ".png";
+
+        return switch (size.toLowerCase()) {
+            case "small" -> basePath + "_small" + fileExtension;
+            case "medium" -> basePath + "_medium" + fileExtension;
+            case "large" -> basePath + "_large" + fileExtension;
+            default -> basePath + fileExtension;
+        };
+    }
 }

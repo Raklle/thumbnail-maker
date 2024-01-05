@@ -71,7 +71,7 @@ public class CommunicationHandler {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                //TODO Do zmienieniea
+                //TODO Do zmienienia, wstawianie placeholderów
                 if(jsonObject.getString("state").equals("DONE")){
                     String id = jsonObject.getString("id");
                     String base64Image = jsonObject.getString("image");
