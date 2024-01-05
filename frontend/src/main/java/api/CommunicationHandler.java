@@ -100,16 +100,13 @@ public class CommunicationHandler {
         if (responseEntity != null) {
 
             String responseContent = EntityUtils.toString(responseEntity);
-//            System.out.println("Response Content: " + responseContent);
-            JSONArray jsonArray = new JSONArray(responseContent);
-
-            JSONObject jsonObject = jsonArray.getJSONObject(0);
+            JSONObject jsonObject = new JSONObject(responseContent);
 
             String id1 = jsonObject.getString("id");
             String base64Image = jsonObject.getString("image");
 
-            System.out.println("ID: " + id1);
-            System.out.println("Image: " + base64Image);
+//            System.out.println("ID: " + id1);
+//            System.out.println("Image: " + base64Image);
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
             return Optional.of(new Image(id1, imageBytes));

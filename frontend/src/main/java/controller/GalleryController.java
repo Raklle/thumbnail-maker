@@ -2,6 +2,7 @@ package controller;
 
 
 import api.CommunicationHandler;
+import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -167,12 +168,21 @@ public class GalleryController {
     }
 
     private void bindSelectedPhoto(Image selectedPhoto) {
-        imageView.imageProperty().bind(selectedPhoto.photoDataProperty());
+        try {
+            CommunicationHandler.getOriginalPhoto(selectedPhoto.id()).ifPresent(
+                    photo -> imageView.imageProperty().bind(photo.photoDataProperty())
+            );
+        } catch (IOException e) {
+
+            imageView.imageProperty().bind(null);
+        }
+
     }
 
     // needs to be called every 1s before the socket works
     private void fillGallery() throws IOException {
         CommunicationHandler.getAllPhotos(galleryModel, size);
     }
+
 
 }
