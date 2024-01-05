@@ -64,3 +64,26 @@
 - **Ścieżka:** `/photos/photos`
 - **Parametry:** `imageSize` (opcjonalny, domyślnie "original") - rozmiar zdjęcia
 - **Opis:** Endpoint umożliwiający pobieranie wszystkich zdjęć. Zwraca odpowiedź zawierającą listę obrazów w formie bajtów.
+
+## M2 05.01.2024
+
+- **Stworzenie frontu w JavaFX**
+- **Podpięcie bazy MongoDB w chmurze**
+- **Aplikacja backendowa po wstaniu sprawdza czy zostały jakieś nieprzeprocesowane zdjęcia**
+- **Odświeżanie frontu co 2s względem bazy**
+- **Wybór miniatur po rozmiarze**
+- **Podgląd oryginalnego zdjęcia**
+- **Placeholder po stronie frontu podczas przetwarzania zdjęcia**
+- **Dodawanie plików do aplikacji frontendowej poprzed drag & drop**
+- **Wysyłanie zdjęć do zminimalizowania dodanych we froncie**
+
+## Instrukcje
+
+Aby cały projekt zadziałał, należy włączyć zarówno backend oraz osobno frontend. Po wysłaniu ~5 plików możemy zaobserwować placeholdery w miejscach jeszcze nieprzetworzonych obrazków.
+
+## Najbliższe plany
+
+- **Dodanie do komunikacji message brokera, żeby front dostawał informację kiedy coś zostało zapisane do bazy żeby się zaktualizował**
+- **Wymagania M3**
+
+  ![App M2](app-m2.png)
