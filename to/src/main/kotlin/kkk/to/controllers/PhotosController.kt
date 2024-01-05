@@ -23,11 +23,6 @@ class PhotosController (private val dbService: DBService) {
         }).mapNotNull { image -> image.id + "\n"}
     }
 
-    @PostMapping("/test1")
-    fun testImages(@RequestPart("files") images: Flux<String>): Flux<String> {
-        return images
-    }
-
     @GetMapping("/photos")
     fun getAllImages(): Flux<ImageResponse> {
         return dbService.getAllImages()

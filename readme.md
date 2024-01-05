@@ -22,49 +22,6 @@
 - **Dodanie rozróżnienia w odpowiedzi endpoitów czy proces zmiejszania obrazu się nie powiódł, czy jeszcze nie został wykonany**
 
 
-## Endpunkty
-
-### 1. Testowy Endpunkt
-
-- **Metoda:** `GET`
-- **Ścieżka:** `/photos/test`
-- **Opis:** Testowy endpoint zwracający napis "Testing" w odpowiedzi.
-
-### 2. Upload pojedynczego pliku
-
-- **Metoda:** `POST`
-- **Ścieżka:** `/photos/upload`
-- **Parametry:** `file` (MultipartFile) - przesyłany plik
-- **Opis:** Endpoint umożliwiający przesyłanie pojedynczego pliku. Tworzy bilet w bazie danych, przetwarza plik za pomocą `HandlingService` i zwraca odpowiedź, czy plik został pomyślnie przesłany.
-
-### 3. Upload wielu plików
-
-- **Metoda:** `POST`
-- **Ścieżka:** `/photos/upload/bulk`
-- **Parametry:** `files` (List\<MultipartFile\>) - lista przesyłanych plików
-- **Opis:** Endpoint umożliwiający przesyłanie wielu plików. Podobnie jak poprzedni endpoint, tworzy bilet w bazie danych, przetwarza pliki za pomocą `HandlingService` i zwraca odpowiedź.
-
-### 4. Pobieranie zdjęcia po identyfikatorze
-
-- **Metoda:** `GET`
-- **Ścieżka:** `/photos/{imageId}`
-- **Parametry:** `imageId` (Long) - identyfikator zdjęcia, `imageSize` (opcjonalny, domyślnie "original") - rozmiar zdjęcia
-- **Opis:** Endpoint umożliwiający pobieranie zdjęcia o określonym identyfikatorze. Zwraca odpowiedź zawierającą obraz w formie bajtów.
-
-### 5. Pobieranie zdjęć związanych z biletem
-
-- **Metoda:** `GET`
-- **Ścieżka:** `/photos/tickets/{ticketID}`
-- **Parametry:** `ticketID` (String) - identyfikator biletu, `imageSize` (opcjonalny, domyślnie "original") - rozmiar zdjęcia
-- **Opis:** Endpoint umożliwiający pobieranie zdjęć związanych z danym biletem. Zwraca odpowiedź zawierającą listę obrazów w formie bajtów.
-
-### 6. Pobieranie wszystkich zdjęć
-
-- **Metoda:** `GET`
-- **Ścieżka:** `/photos/photos`
-- **Parametry:** `imageSize` (opcjonalny, domyślnie "original") - rozmiar zdjęcia
-- **Opis:** Endpoint umożliwiający pobieranie wszystkich zdjęć. Zwraca odpowiedź zawierającą listę obrazów w formie bajtów.
-
 ## M2 05.01.2024
 
 - **Stworzenie frontu w JavaFX**
@@ -87,3 +44,33 @@ Aby cały projekt zadziałał, należy włączyć zarówno backend oraz osobno f
 - **Wymagania M3**
 
   ![App M2](app-m2.png)
+
+## Endpunkty
+
+### 1. Testowy Endpunkt
+
+- **Metoda:** `GET`
+- **Ścieżka:** `/test`
+- **Opis:** Testowy endpoint zwracający napis "Testing" w odpowiedzi.
+
+### 2. Upload wielu plików
+
+- **Metoda:** `POST`
+- **Ścieżka:** `/`
+- **Parametry:** `files` (Flux\<ByteArray\>) - lista przesyłanych plików
+- **Opis:** Endpoint umożliwiający przesyłanie wielu plików. Podobnie jak poprzedni endpoint, tworzy bilet w bazie danych, przetwarza pliki za pomocą `HandlingService` i zwraca odpowiedź.
+
+### 3. Pobieranie zdjęcia po identyfikatorze
+
+- **Metoda:** `GET`
+- **Ścieżka:** `[/imageSize]/{imageId}`
+- **Parametry:** `imageId` (Long) - identyfikator zdjęcia, `imageSize` (opcjonalny, domyślnie zostawić puste) - rozmiar zdjęcia
+- **Opis:** Endpoint umożliwiający pobieranie zdjęcia o określonym identyfikatorze. Zwraca odpowiedź zawierającą obraz w formie bajtów.
+
+
+### 4. Pobieranie wszystkich zdjęć
+
+- **Metoda:** `GET`
+- **Ścieżka:** `[/imageSize]/photos`
+- **Parametry:** `imageSize` (opcjonalny, domyślnie "original") - rozmiar zdjęcia
+- **Opis:** Endpoint umożliwiający pobieranie wszystkich zdjęć. Zwraca odpowiedź zawierającą listę obrazów w formie bajtów.
