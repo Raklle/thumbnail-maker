@@ -53,6 +53,7 @@ public class CommunicationHandler {
             case LARGE -> "large";
             case MEDIUM -> "medium";
             case SMALL -> "small";
+            case ORIGINAL -> "";
         };
         HttpGet getRequest = new HttpGet("http://localhost:8080/" + sizee +  "/photos");
 
@@ -75,12 +76,18 @@ public class CommunicationHandler {
                     String id = jsonObject.getString("id");
                     String base64Image = jsonObject.getString("image");
 
-                    System.out.println("ID: " + id);
-                    System.out.println("Image: " + base64Image);
+//                    System.out.println("ID: " + id);
+//                    System.out.println("Image: " + base64Image);
                     byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
                     gallery.addPhoto(new Image(id, imageBytes));
                     System.out.println(gallery.getPhotos().size());
+                }else{
+                    String id = jsonObject.getString("id");
+                    byte[] empty = new byte[0];
+                    var image = new Image(id, empty);
+                    image.setPlaceholder(size);
+                    gallery.addPhoto(image);
                 }
 
 

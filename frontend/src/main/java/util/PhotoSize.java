@@ -3,5 +3,6 @@ package util;
 public enum PhotoSize {
     SMALL,
     MEDIUM,
-    LARGE
+    LARGE,
+    ORIGINAL
 }

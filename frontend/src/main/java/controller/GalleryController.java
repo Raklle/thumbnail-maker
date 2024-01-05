@@ -165,8 +165,8 @@ public class GalleryController {
                     photo -> imageView.imageProperty().bind(photo.photoDataProperty())
             );
         } catch (IOException e) {
-
-            imageView.imageProperty().bind(getPlaceholder("F"));
+            selectedPhoto.setPlaceholder(PhotoSize.ORIGINAL);
+            imageView.imageProperty().bind(selectedPhoto.photoDataProperty());
         }
 
     }
@@ -176,24 +176,4 @@ public class GalleryController {
         CommunicationHandler.getAllPhotos(galleryModel, size);
     }
 
-    private ObjectProperty<javafx.scene.image.Image> getPlaceholder(String size){
-        try {
-            return new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(size))));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    public static String buildFilePath(String size) {
-        String basePath = "frontend/src/main/resources/assets/placeholder";
-        String fileExtension = ".png";
-
-        return switch (size.toLowerCase()) {
-            case "small" -> basePath + "_small" + fileExtension;
-            case "medium" -> basePath + "_medium" + fileExtension;
-            case "large" -> basePath + "_large" + fileExtension;
-            default -> basePath + fileExtension;
-        };
-    }
 }
