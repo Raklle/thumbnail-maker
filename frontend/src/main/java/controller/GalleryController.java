@@ -178,8 +178,7 @@ public class GalleryController {
             CommunicationHandler.getAllPhotos(galleryModel, size);
             System.out.println("Gallery filled");
         } catch (IOException e) {
-            // Handle the IOException appropriately, e.g., log the error or show a user-friendly message
-            e.printStackTrace(); // You might want to replace this with your actual error-handling strategy
+            e.printStackTrace();
         }
     }
 

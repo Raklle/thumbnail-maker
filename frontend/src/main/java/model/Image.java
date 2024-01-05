@@ -3,10 +3,9 @@ package model;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import util.PhotoSize;
+import util.Placeholders;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 public class Image {
 
@@ -31,23 +30,8 @@ public class Image {
     }
 
     public void setPlaceholder(PhotoSize size){
-        try {
-            this.photoData =  new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(size))));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
+        this.photoData = Placeholders.getInstance().getPlaceholder(size);
     }
 
-    public static String buildFilePath(PhotoSize size) {
-        String basePath = "frontend/src/main/resources/assets/placeholder";
-        String fileExtension = ".png";
 
-        return switch (size) {
-            case SMALL -> basePath + "_small" + fileExtension;
-            case MEDIUM-> basePath + "_medium" + fileExtension;
-            case LARGE -> basePath + "_large" + fileExtension;
-            case ORIGINAL -> basePath + fileExtension;
-        };
-    }
 }
