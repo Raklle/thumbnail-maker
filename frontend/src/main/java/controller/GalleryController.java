@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import model.Gallery;
 import model.Image;
@@ -24,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class GalleryController {
 
@@ -33,8 +35,11 @@ public class GalleryController {
     @FXML
     private ImageView imageView;
 
+//    @FXML
+//    private ListView<Image> imagesListView;
+
     @FXML
-    private ListView<Image> imagesListView;
+    private GridPane imagesGridPane;
 
     @FXML
     private StackPane fileDropPane;
@@ -59,32 +64,33 @@ public class GalleryController {
     @FXML
     public void initialize() {
 
-        imagesListView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Image item, boolean empty) {
-                super.updateItem(item, empty);
+//        imagesListView.setCellFactory(param -> new ListCell<>() {
+//            @Override
+//            protected void updateItem(Image item, boolean empty) {
+//                super.updateItem(item, empty);
+//
+//                if (empty || item == null) {
+//                    setText(null);
+//                    setGraphic(null);
+//                } else {
+//                    StackPane stackPane = new StackPane();
+//                    ImageView imageView = new ImageView(item.getPhotoData());
+//                    imageView.setPreserveRatio(true);
+////                    imageView.setFitHeight(50);
+//                    stackPane.getChildren().add(imageView);
+//
+//                    setGraphic(stackPane);
+//                }
+//            }
+//        });
+//
+//        imagesListView.getSelectionModel().selectedItemProperty().addListener(
+//                (observable, oldValue, newValue) -> {
+//
+//                    bindSelectedPhoto(newValue);
+//                }
+//        );
 
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    StackPane stackPane = new StackPane();
-                    ImageView imageView = new ImageView(item.getPhotoData());
-                    imageView.setPreserveRatio(true);
-                    imageView.setFitHeight(50);
-                    stackPane.getChildren().add(imageView);
-
-                    setGraphic(stackPane);
-                }
-            }
-        });
-
-        imagesListView.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
-
-                    bindSelectedPhoto(newValue);
-                }
-        );
         draggedFilesNamesList.setItems(draggedFilesNames);
     }
 
@@ -154,8 +160,8 @@ public class GalleryController {
 
     public void setModel(Gallery gallery) throws IOException {
         this.galleryModel = gallery;
-        imagesListView.setItems(gallery.getPhotos());
-        imagesListView.getSelectionModel().select(0);
+//        imagesListView.setItems(gallery.getPhotos());
+//        imagesListView.getSelectionModel().select(0);
         fillGallery();
     }
 
@@ -174,6 +180,32 @@ public class GalleryController {
     // needs to be called every 1s before the socket works
     private void fillGallery() throws IOException {
         CommunicationHandler.getAllPhotos(galleryModel, size);
+
+        imagesGridPane.getChildren().clear();
+        int row = 0;
+        int col = 0;
+
+        for (Image photo : galleryModel.getPhotos()) {
+            StackPane stackPane = new StackPane();
+            ImageView imageView = new ImageView(photo.getPhotoData());
+            imageView.setPreserveRatio(true);
+
+            imageView.setOnMouseClicked(e -> {
+                bindSelectedPhoto(photo);
+            });
+
+            stackPane.getChildren().add(imageView);
+
+            imagesGridPane.add(stackPane, col, row);
+            col++;
+
+            if (col == 2 && size == PhotoSize.LARGE ||
+                col == 3 && size == PhotoSize.MEDIUM ||
+                col == 5 && size == PhotoSize.SMALL){
+                col = 0;
+                row++;
+            }
+        }
     }
 
     private ObjectProperty<javafx.scene.image.Image> getPlaceholder(String size){

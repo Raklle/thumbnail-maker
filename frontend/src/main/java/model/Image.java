@@ -19,6 +19,10 @@ public class Image {
         return id;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public javafx.scene.image.Image getPhotoData() {
         return photoData.get();
     }
