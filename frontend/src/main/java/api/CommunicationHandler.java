@@ -17,6 +17,7 @@ import util.PhotoSize;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,12 +71,13 @@ public class CommunicationHandler {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                 String id = jsonObject.getString("id");
-                String image = jsonObject.getString("image");
+                String base64Image = jsonObject.getString("image");
 
                 System.out.println("ID: " + id);
-                System.out.println("Image: " + image);
+                System.out.println("Image: " + base64Image);
+                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-                gallery.addPhoto(new Image(id, image.getBytes()));
+                gallery.addPhoto(new Image(id, imageBytes));
                 System.out.println(gallery.getPhotos().size());
 
             }

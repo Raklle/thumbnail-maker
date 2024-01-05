@@ -15,7 +15,7 @@ public class Image {
 
     public Image(String id, byte[] photoData) {
         this.id = id;
-        this.photoData = new SimpleObjectProperty<javafx.scene.image.Image>(new javafx.scene.image.Image(new ByteArrayInputStream(photoData)));
+        this.photoData = new SimpleObjectProperty<>(new javafx.scene.image.Image(new ByteArrayInputStream(photoData)));
     }
 
     public javafx.scene.image.Image getPhotoData() {
