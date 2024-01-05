@@ -11,11 +11,6 @@ import reactor.core.publisher.Mono
 @RestController
 class PhotosController (private val dbService: DBService) {
 
-    @GetMapping("/test")
-    fun testEndpoint(): String {
-        return "Testing"
-    }
-
     @PostMapping
         fun saveImages(@RequestPart("files") images: Flux<ByteArray>): Flux<String> {
         return dbService.saveImages(images.map{
@@ -23,7 +18,7 @@ class PhotosController (private val dbService: DBService) {
         }).mapNotNull { image -> image.id + "\n"}
     }
 
-    @GetMapping("/photos")
+    @GetMapping
     fun getAllImages(): Flux<ImageResponse> {
         return dbService.getAllImages()
     }
