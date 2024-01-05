@@ -29,9 +29,9 @@ public class CommunicationHandler {
 
     public static void uploadPhotos(List<File> files) throws IOException {
 
-        HttpPost postRequest = new HttpPost("http://localhost:8080/photos");
+        HttpPost postRequest = new HttpPost("http://localhost:8080");
 
-        files.forEach(file -> builder.addBinaryBody("files", file, ContentType.MULTIPART_FORM_DATA, "files"));
+        files.forEach(file -> builder.addBinaryBody("files", file, ContentType.IMAGE_JPEG, "files"));
 
         postRequest.setEntity(builder.build());
 
@@ -70,15 +70,20 @@ public class CommunicationHandler {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                String id = jsonObject.getString("id");
-                String base64Image = jsonObject.getString("image");
+                //TODO Do zmienieniea
+                if(jsonObject.getString("state").equals("DONE")){
+                    String id = jsonObject.getString("id");
+                    String base64Image = jsonObject.getString("image");
 
-                System.out.println("ID: " + id);
-                System.out.println("Image: " + base64Image);
-                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+                    System.out.println("ID: " + id);
+                    System.out.println("Image: " + base64Image);
+                    byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-                gallery.addPhoto(new Image(id, imageBytes));
-                System.out.println(gallery.getPhotos().size());
+                    gallery.addPhoto(new Image(id, imageBytes));
+                    System.out.println(gallery.getPhotos().size());
+                }
+
+
 
             }
         }

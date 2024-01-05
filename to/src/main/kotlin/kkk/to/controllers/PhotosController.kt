@@ -5,7 +5,6 @@ import kkk.to.services.DBService
 import kkk.to.util.ImageResponse
 import kkk.to.util.Size
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -17,12 +16,16 @@ class PhotosController (private val dbService: DBService) {
         return "Testing"
     }
 
-    @PostMapping("/photos")
-    fun saveImages(@RequestParam("files") images: ArrayList<MultipartFile>): Flux<String> {
-        println("Request")
-        return dbService.saveImages(Flux.fromIterable(images).map{
-            image -> Image(original = image.bytes)
+    @PostMapping
+        fun saveImages(@RequestPart("files") images: Flux<ByteArray>): Flux<String> {
+        return dbService.saveImages(images.map{
+            image -> Image(original = image)
         }).mapNotNull { image -> image.id + "\n"}
+    }
+
+    @PostMapping("/test1")
+    fun testImages(@RequestPart("files") images: Flux<String>): Flux<String> {
+        return images
     }
 
     @GetMapping("/photos")
