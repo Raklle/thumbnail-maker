@@ -15,5 +15,6 @@ interface DBService {
     fun getAllSmallImagesToMinimize(): Flux<Image>
     fun getAllMediumImagesToMinimize(): Flux<Image>
     fun getAllLargeImagesToMinimize(): Flux<Image>
+    fun getAllImagesToMinimize(): Flux<Image>
 
 }
