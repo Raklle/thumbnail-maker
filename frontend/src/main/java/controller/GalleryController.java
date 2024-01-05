@@ -24,11 +24,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GalleryController {
 
     @FXML
     private TextField imageNameField;
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @FXML
     private ImageView imageView;
@@ -70,8 +75,9 @@ public class GalleryController {
                 } else {
                     StackPane stackPane = new StackPane();
                     ImageView imageView = new ImageView(item.getPhotoData());
+                    System.out.println(item.getPhotoData());
                     imageView.setPreserveRatio(true);
-                    imageView.setFitHeight(50);
+//                    imageView.setFitHeight(50);
                     stackPane.getChildren().add(imageView);
 
                     setGraphic(stackPane);
@@ -86,6 +92,8 @@ public class GalleryController {
                 }
         );
         draggedFilesNamesList.setItems(draggedFilesNames);
+
+        scheduler.scheduleAtFixedRate(this::fillGallery, 0, 2, TimeUnit.SECONDS);
     }
 
     @FXML
@@ -172,8 +180,14 @@ public class GalleryController {
     }
 
     // needs to be called every 1s before the socket works
-    private void fillGallery() throws IOException {
-        CommunicationHandler.getAllPhotos(galleryModel, size);
+    private void fillGallery() {
+        try {
+            CommunicationHandler.getAllPhotos(galleryModel, size);
+            System.out.println("Gallery filled");
+        } catch (IOException e) {
+            // Handle the IOException appropriately, e.g., log the error or show a user-friendly message
+            e.printStackTrace(); // You might want to replace this with your actual error-handling strategy
+        }
     }
 
     private ObjectProperty<javafx.scene.image.Image> getPlaceholder(String size){
