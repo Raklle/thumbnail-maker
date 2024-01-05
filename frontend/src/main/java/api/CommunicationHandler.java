@@ -71,8 +71,8 @@ public class CommunicationHandler {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                //TODO Do zmienienia, wstawianie placeholderów
-                if(jsonObject.getString("state").equals("DONE")){
+                String state = jsonObject.getString("state");
+                if(state.equals("DONE")){
                     String id = jsonObject.getString("id");
                     String base64Image = jsonObject.getString("image");
 
@@ -81,8 +81,8 @@ public class CommunicationHandler {
                     byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
                     gallery.addPhoto(new Image(id, imageBytes));
-                    System.out.println(gallery.getPhotos().size());
-                }else{
+//                    System.out.println(gallery.getPhotos().size());
+                }else if (state.equals("TO_MINIMIZE")){
                     String id = jsonObject.getString("id");
                     byte[] empty = new byte[0];
                     var image = new Image(id, empty);
