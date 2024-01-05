@@ -22,7 +22,7 @@
         </HBox>
     </top>
     <left>
-        <ScrollPane>
+        <ScrollPane prefHeight="540">
         <GridPane fx:id="imagesGridPane" hgap="10" vgap="10"/>
         </ScrollPane>
 <!--        <ListView fx:id="imagesListView" prefWidth="540" prefHeight="540"/>-->

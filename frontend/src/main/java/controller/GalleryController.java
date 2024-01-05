@@ -2,6 +2,7 @@ package controller;
 
 
 import api.CommunicationHandler;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -25,18 +26,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GalleryController {
 
     @FXML
     private TextField imageNameField;
 
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     @FXML
     private ImageView imageView;
 
-//    @FXML
-//    private ListView<Image> imagesListView;
 
     @FXML
     private GridPane imagesGridPane;
@@ -92,6 +95,8 @@ public class GalleryController {
 //        );
 
         draggedFilesNamesList.setItems(draggedFilesNames);
+
+
     }
 
     @FXML
@@ -162,7 +167,8 @@ public class GalleryController {
         this.galleryModel = gallery;
 //        imagesListView.setItems(gallery.getPhotos());
 //        imagesListView.getSelectionModel().select(0);
-        fillGallery();
+//        fillGallery();
+        scheduler.scheduleAtFixedRate(this::fillGallery, 0, 2, TimeUnit.SECONDS);
     }
 
     private void bindSelectedPhoto(Image selectedPhoto) {
@@ -178,33 +184,42 @@ public class GalleryController {
     }
 
     // needs to be called every 1s before the socket works
-    private void fillGallery() throws IOException {
-        CommunicationHandler.getAllPhotos(galleryModel, size);
 
-        imagesGridPane.getChildren().clear();
-        int row = 0;
-        int col = 0;
+    private void fillGallery(){
+        try {
+            CommunicationHandler.getAllPhotos(galleryModel, size);
 
-        for (Image photo : galleryModel.getPhotos()) {
-            StackPane stackPane = new StackPane();
-            ImageView imageView = new ImageView(photo.getPhotoData());
-            imageView.setPreserveRatio(true);
+            Platform.runLater(() -> {
+                imagesGridPane.getChildren().clear();
+                int row = 0;
+                int col = 0;
 
-            imageView.setOnMouseClicked(e -> {
-                bindSelectedPhoto(photo);
+                for (Image photo : galleryModel.getPhotos()) {
+                    StackPane stackPane = new StackPane();
+                    ImageView imageView = new ImageView(photo.getPhotoData());
+                    imageView.setPreserveRatio(true);
+
+                    imageView.setOnMouseClicked(e -> {
+                        bindSelectedPhoto(photo);
+                    });
+
+                    stackPane.getChildren().add(imageView);
+
+                    imagesGridPane.add(stackPane, col, row);
+                    col++;
+
+                    if (col == 2 && size == PhotoSize.LARGE ||
+                            col == 3 && size == PhotoSize.MEDIUM ||
+                            col == 5 && size == PhotoSize.SMALL){
+                        col = 0;
+                        row++;
+                    }
+                }
             });
 
-            stackPane.getChildren().add(imageView);
-
-            imagesGridPane.add(stackPane, col, row);
-            col++;
-
-            if (col == 2 && size == PhotoSize.LARGE ||
-                col == 3 && size == PhotoSize.MEDIUM ||
-                col == 5 && size == PhotoSize.SMALL){
-                col = 0;
-                row++;
-            }
+        } catch (IOException e) {
+            System.out.println("Gallery filled");
+            e.printStackTrace();
         }
     }
 
