@@ -101,12 +101,13 @@ public class CommunicationHandler {
             JSONObject jsonObject = jsonArray.getJSONObject(0);
 
             String id1 = jsonObject.getString("id");
-            String image = jsonObject.getString("image");
+            String base64Image = jsonObject.getString("image");
 
             System.out.println("ID: " + id1);
-            System.out.println("Image: " + image);
+            System.out.println("Image: " + base64Image);
+            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-            return Optional.of(new Image(id1, image.getBytes()));
+            return Optional.of(new Image(id1, imageBytes));
 
         }
         return Optional.empty();
