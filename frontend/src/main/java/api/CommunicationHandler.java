@@ -14,6 +14,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.PhotoSize;
+import util.Placeholders;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,12 +25,13 @@ import java.util.Optional;
 public class CommunicationHandler {
 
     private static final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-
     private static final HttpClient httpClient = HttpClients.createDefault();
+    private static final Placeholders placeholder = new Placeholders();
+    private static final String serviceAddress = "http://localhost:8080/";
 
     public static void uploadPhotos(List<File> files) throws IOException {
 
-        HttpPost postRequest = new HttpPost("http://localhost:8080");
+        HttpPost postRequest = new HttpPost(serviceAddress);
 
         files.forEach(file -> builder.addBinaryBody("files", file, ContentType.IMAGE_JPEG, "files"));
 
@@ -47,15 +49,20 @@ public class CommunicationHandler {
 
     }
 
+    private static String getAllPhotosAddress(PhotoSize size){
+        return serviceAddress +
+            switch (size) {
+                case LARGE -> "large";
+                case MEDIUM -> "medium";
+                case SMALL -> "small";
+                case ORIGINAL -> "";
+            } +
+                "/photos";
+    }
     public static void getAllPhotos(Gallery gallery, PhotoSize size) throws IOException {
 
-        String sizee = switch (size) {
-            case LARGE -> "large";
-            case MEDIUM -> "medium";
-            case SMALL -> "small";
-            case ORIGINAL -> "";
-        };
-        HttpGet getRequest = new HttpGet("http://localhost:8080/" + sizee +  "/photos");
+
+        HttpGet getRequest = new HttpGet(getAllPhotosAddress(size));
 
         HttpResponse response = httpClient.execute(getRequest);
 
@@ -80,12 +87,12 @@ public class CommunicationHandler {
 //                    System.out.println("Image: " + base64Image);
                     byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-                    gallery.addPhoto(new Image(id, imageBytes));
+                    gallery.addPhoto(new Image(id, imageBytes, placeholder));
 //                    System.out.println(gallery.getPhotos().size());
                 }else if (state.equals("TO_MINIMIZE")){
                     String id = jsonObject.getString("id");
                     byte[] empty = new byte[0];
-                    var image = new Image(id, empty);
+                    var image = new Image(id, empty, placeholder);
                     image.setPlaceholder(size);
                     gallery.addPhoto(image);
                 }
@@ -98,7 +105,7 @@ public class CommunicationHandler {
 
     public static Optional<Image> getOriginalPhoto(String id) throws IOException {
 
-        HttpGet getRequest = new HttpGet("http://localhost:8080/" + id);
+        HttpGet getRequest = new HttpGet(serviceAddress + id);
 
         HttpResponse response = httpClient.execute(getRequest);
 
@@ -116,7 +123,7 @@ public class CommunicationHandler {
 //            System.out.println("Image: " + base64Image);
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-            return Optional.of(new Image(id1, imageBytes));
+            return Optional.of(new Image(id1, imageBytes, placeholder));
 
         }
         return Optional.empty();

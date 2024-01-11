@@ -40,7 +40,6 @@ public class GalleryController {
     @FXML
     private ImageView imageView;
 
-
     @FXML
     private GridPane imagesGridPane;
 
@@ -61,7 +60,9 @@ public class GalleryController {
 
     private List<File> filesToUpload = new ArrayList<>();
 
-
+    private int collumnCountSmall = 5;
+    private int collumnCountMedium = 3;
+    private int collumnCountLarge = 2;
 
 
     @FXML
@@ -208,9 +209,9 @@ public class GalleryController {
                     imagesGridPane.add(stackPane, col, row);
                     col++;
 
-                    if (col == 2 && size == PhotoSize.LARGE ||
-                            col == 3 && size == PhotoSize.MEDIUM ||
-                            col == 5 && size == PhotoSize.SMALL){
+                    if (col == collumnCountLarge && size == PhotoSize.LARGE ||
+                            col == collumnCountMedium && size == PhotoSize.MEDIUM ||
+                            col == collumnCountSmall && size == PhotoSize.SMALL){
                         col = 0;
                         row++;
                     }

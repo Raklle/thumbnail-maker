@@ -8,18 +8,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public final class Placeholders {
-    private static Placeholders instance;
+//    private static Placeholders instance;
     public String value;
 
-    private final ObjectProperty<javafx.scene.image.Image> small;
-    private final ObjectProperty<javafx.scene.image.Image> medium;
-    private final ObjectProperty<javafx.scene.image.Image> large;
-    private final ObjectProperty<javafx.scene.image.Image> original;
-    private Placeholders() {
+    private final ObjectProperty<Image> small;
+    private final ObjectProperty<Image> medium;
+    private final ObjectProperty<Image> large;
+    private final ObjectProperty<Image> original;
+    public Placeholders() {
         try {
-            this.small = new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(PhotoSize.SMALL))));
-            this.medium = new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(PhotoSize.MEDIUM))));
-            this.large = new SimpleObjectProperty<>(new javafx.scene.image.Image(new FileInputStream(buildFilePath(PhotoSize.LARGE))));
+            this.small = new SimpleObjectProperty<>(new Image(new FileInputStream(buildFilePath(PhotoSize.SMALL))));
+            this.medium = new SimpleObjectProperty<>(new Image(new FileInputStream(buildFilePath(PhotoSize.MEDIUM))));
+            this.large = new SimpleObjectProperty<>(new Image(new FileInputStream(buildFilePath(PhotoSize.LARGE))));
             this.original = new SimpleObjectProperty<>(new Image(new FileInputStream(buildFilePath(PhotoSize.ORIGINAL))));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -38,12 +38,12 @@ public final class Placeholders {
         };
     }
 
-    public static Placeholders getInstance() {
-        if (instance == null) {
-            instance = new Placeholders();
-        }
-        return instance;
-    }
+//    public static Placeholders getInstance() {
+//        if (instance == null) {
+//            instance = new Placeholders();
+//        }
+//        return instance;
+//    }
 
     public ObjectProperty<Image> getPlaceholder(PhotoSize size) {
         return switch (size) {

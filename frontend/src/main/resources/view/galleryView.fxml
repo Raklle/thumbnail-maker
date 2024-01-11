@@ -28,9 +28,9 @@
 <!--        <ListView fx:id="imagesListView" prefWidth="540" prefHeight="540"/>-->
     </left>
     <right>
-        <Pane >
+        <ScrollPane prefHeight="540">
             <ImageView fx:id="imageView"/>
-        </Pane>
+        </ScrollPane>
     </right>
     <bottom>
         <VBox spacing="8">
