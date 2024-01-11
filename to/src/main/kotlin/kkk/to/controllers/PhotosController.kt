@@ -29,17 +29,31 @@ class PhotosController (private val dbService: DBService) {
     }
 
     @GetMapping("/small/photos")
-    fun getAllSmallImages(): Flux<ImageResponse> {
-        return dbService.getAllImagesBySize(Size.SMALL)
+    fun getAllSmallImages(@RequestParam("id", required = false) downloadedImagesId: ArrayList<String>?): Flux<ImageResponse> {
+        return if (downloadedImagesId == null) {
+            dbService.getAllImagesBySize(Size.SMALL)
+        } else {
+            dbService.getAllImagesBySize(Size.SMALL).filter { image -> !downloadedImagesId.contains(image.id) }
+        }
     }
     @GetMapping("/medium/photos")
-    fun getAllMediumImages(): Flux<ImageResponse> {
-        return dbService.getAllImagesBySize(Size.MEDIUM)
+    fun getAllMediumImages(@RequestParam("id", required = false) downloadedImagesId: ArrayList<String>?): Flux<ImageResponse> {
+        return if (downloadedImagesId == null) {
+            dbService.getAllImagesBySize(Size.MEDIUM)
+        } else {
+            dbService.getAllImagesBySize(Size.MEDIUM).filter { image -> !downloadedImagesId.contains(image.id) }
+        }
     }
+
     @GetMapping("/large/photos")
-    fun getAllLargeImages(): Flux<ImageResponse> {
-        return dbService.getAllImagesBySize(Size.LARGE)
+    fun getAllLargeImages(@RequestParam("id", required = false) downloadedImagesId: ArrayList<String>?): Flux<ImageResponse> {
+        return if (downloadedImagesId == null) {
+            dbService.getAllImagesBySize(Size.LARGE)
+        } else {
+            dbService.getAllImagesBySize(Size.LARGE).filter { image -> !downloadedImagesId.contains(image.id) }
+        }
     }
+
     @GetMapping("/small/{id}")
     fun getSmallImageById(@PathVariable id: String): Mono<ImageResponse> {
         return dbService.getImageByIdAndSize(id, Size.SMALL)

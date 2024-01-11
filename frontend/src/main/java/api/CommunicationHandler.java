@@ -18,9 +18,7 @@ import util.Placeholders;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class CommunicationHandler {
 
@@ -49,20 +47,25 @@ public class CommunicationHandler {
 
     }
 
-    private static String getAllPhotosAddress(PhotoSize size){
-        return serviceAddress +
+    private static String getAllPhotosAddress(PhotoSize size, ArrayList<String> idList){
+        String sizePath =
             switch (size) {
                 case LARGE -> "large";
                 case MEDIUM -> "medium";
                 case SMALL -> "small";
                 case ORIGINAL -> "";
-            } +
-                "/photos";
+            };
+
+        StringJoiner idParam = new StringJoiner("&id=", "?id=", "");
+        if (idList != null && !idList.isEmpty()) {
+            idList.forEach(idParam::add);
+        }
+//        System.out.println(serviceAddress + sizePath + "/photos" + idParam.toString());
+        return serviceAddress + sizePath + "/photos" + idParam.toString();
     }
     public static void getAllPhotos(Gallery gallery, PhotoSize size) throws IOException {
-
-
-        HttpGet getRequest = new HttpGet(getAllPhotosAddress(size));
+        gallery.clear(size);
+        HttpGet getRequest = new HttpGet(getAllPhotosAddress(size, gallery.getPhotosId()));
 
         HttpResponse response = httpClient.execute(getRequest);
 
@@ -74,7 +77,7 @@ public class CommunicationHandler {
 //            System.out.println("Response Content: " + responseContent);
             JSONArray jsonArray = new JSONArray(responseContent);
 
-            gallery.clear();
+
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
@@ -87,12 +90,12 @@ public class CommunicationHandler {
 //                    System.out.println("Image: " + base64Image);
                     byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-                    gallery.addPhoto(new Image(id, imageBytes, placeholder));
+                    gallery.addPhoto(new Image(id, imageBytes, state, placeholder));
 //                    System.out.println(gallery.getPhotos().size());
                 }else if (state.equals("TO_MINIMIZE")){
                     String id = jsonObject.getString("id");
                     byte[] empty = new byte[0];
-                    var image = new Image(id, empty, placeholder);
+                    var image = new Image(id, empty, state, placeholder);
                     image.setPlaceholder(size);
                     gallery.addPhoto(image);
                 }
@@ -123,7 +126,7 @@ public class CommunicationHandler {
 //            System.out.println("Image: " + base64Image);
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-            return Optional.of(new Image(id1, imageBytes, placeholder));
+            return Optional.of(new Image(id1, imageBytes, "DONE", placeholder));
 
         }
         return Optional.empty();
