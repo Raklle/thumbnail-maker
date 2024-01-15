@@ -6,12 +6,10 @@ import kkk.to.util.ImageResponse
 import kkk.to.util.ImageState
 import kkk.to.util.Size
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.aggregation.Aggregation
+import org.springframework.data.mongodb.core.aggregation.*
 import org.springframework.data.mongodb.core.aggregation.Aggregation.project
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation
-import org.springframework.data.mongodb.core.aggregation.MatchOperation
-import org.springframework.data.mongodb.core.aggregation.ProjectionOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -26,17 +24,19 @@ class MongoService @Autowired constructor(
     override fun saveImages(images: Flux<Image>): Flux<Image> {
         return imageMongoRepository.saveAll(images)
     }
-    override fun getAllImages(): Flux<ImageResponse> {
+    override fun getAllImages(path: String): Flux<ImageResponse> {
+        val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
         val projectOperation: AggregationOperation = project().
             andExpression("original").`as`("image").
             andExpression("DONE").asLiteral().`as`("state")
-        val aggregation: Aggregation = Aggregation.newAggregation(projectOperation)
+        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation, projectOperation)
         return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
     }
 
-    override fun getAllImagesBySize(size: Size): Flux<ImageResponse> {
+    override fun getAllImagesBySize(size: Size, path: String): Flux<ImageResponse> {
+        val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
         val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
-        val aggregation: Aggregation = Aggregation.newAggregation(projectOperation)
+        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation, projectOperation)
         return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
     }
     override fun getImageById(id: String): Mono<ImageResponse> {
@@ -82,22 +82,35 @@ class MongoService @Autowired constructor(
     }
 
 
+    override fun findAllPageable(pageable: Pageable, size: Size, path: String): Flux<ImageResponse> {
+        val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
+        val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
+        val skipOperation: SkipOperation = Aggregation.skip(pageable.offset)
+        val limitOperation: LimitOperation = Aggregation.limit(pageable.pageSize.toLong())
+        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation, projectOperation, skipOperation, limitOperation)
+
+        return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
+    }
+
     private fun getProjectionToImageResponse(size:Size): ProjectionOperation {
         return when (size) {
                     Size.SMALL -> {
                         project().
                         andExpression("small").`as`("image").
-                        andExpression("smallState").`as`("state")
+                        andExpression("smallState").`as`("state").
+                        andExpression("path").`as`("path")
                     }
                     Size.MEDIUM -> {
                         project().
                         andExpression("medium").`as`("image").
-                        andExpression("mediumState").`as`("state")
+                        andExpression("mediumState").`as`("state").
+                        andExpression("path").`as`("path")
                     }
                     Size.LARGE -> {
                         project().
                         andExpression("large").`as`("image").
-                        andExpression("largeState").`as`("state")
+                        andExpression("largeState").`as`("state").
+                        andExpression("path").`as`("path")
                     }
                 }
     }

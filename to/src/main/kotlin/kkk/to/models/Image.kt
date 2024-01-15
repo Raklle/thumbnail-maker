@@ -11,7 +11,7 @@ data class Image(
     val id: String? = null,
 
     val original: ByteArray,
-
+    val path: String,
     var small: ByteArray? = null,
     var medium: ByteArray? = null,
     var large: ByteArray? = null,
