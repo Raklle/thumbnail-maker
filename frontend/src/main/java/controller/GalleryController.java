@@ -9,6 +9,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -16,6 +19,9 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.Gallery;
 import model.Image;
 import util.PhotoSize;
@@ -49,6 +55,9 @@ public class GalleryController {
     @FXML
     private Label dropPaneLabel;
 
+    @FXML
+    private Label currentPageLabel;
+
     private Gallery galleryModel;
 
     private PhotoSize size = PhotoSize.SMALL;
@@ -56,48 +65,23 @@ public class GalleryController {
     @FXML
     private ListView<String> draggedFilesNamesList;
 
-    private ObservableList<String> draggedFilesNames = FXCollections.observableArrayList();
+    private final ObservableList<String> draggedFilesNames = FXCollections.observableArrayList();
 
-    private List<File> filesToUpload = new ArrayList<>();
+    private final List<File> filesToUpload = new ArrayList<>();
 
-    private int collumnCountSmall = 5;
-    private int collumnCountMedium = 3;
-    private int collumnCountLarge = 2;
+    private final int collumnCountSmall = 5;
+    private final int collumnCountMedium = 3;
+    private final int collumnCountLarge = 2;
+
+    private int currentPage = 1;
+
+    private String currentPath = "";
 
 
     @FXML
     public void initialize() {
 
-//        imagesListView.setCellFactory(param -> new ListCell<>() {
-//            @Override
-//            protected void updateItem(Image item, boolean empty) {
-//                super.updateItem(item, empty);
-//
-//                if (empty || item == null) {
-//                    setText(null);
-//                    setGraphic(null);
-//                } else {
-//                    StackPane stackPane = new StackPane();
-//                    ImageView imageView = new ImageView(item.getPhotoData());
-//                    imageView.setPreserveRatio(true);
-////                    imageView.setFitHeight(50);
-//                    stackPane.getChildren().add(imageView);
-//
-//                    setGraphic(stackPane);
-//                }
-//            }
-//        });
-//
-//        imagesListView.getSelectionModel().selectedItemProperty().addListener(
-//                (observable, oldValue, newValue) -> {
-//
-//                    bindSelectedPhoto(newValue);
-//                }
-//        );
-
         draggedFilesNamesList.setItems(draggedFilesNames);
-
-
     }
 
     @FXML
@@ -146,29 +130,67 @@ public class GalleryController {
     }
 
     @FXML
-    private void onSizeChangeSmall() throws IOException {
+    private void onSizeChangeSmall() {
         size = PhotoSize.SMALL;
         fillGallery();
     }
 
     @FXML
-    private void onSizeChangeMedium() throws IOException {
+    private void onSizeChangeMedium() {
         size = PhotoSize.MEDIUM;
         fillGallery();
 
     }
 
     @FXML
-    private void onSizeChangeLarge() throws IOException {
+    private void onSizeChangeLarge() {
         size = PhotoSize.LARGE;
         fillGallery();
     }
 
+    @FXML
+    private void turnPageLeft() {
+        if (currentPage > 1) {
+            currentPage--;
+            fillGallery();
+        }
+        currentPageLabel.setText(String.valueOf(currentPage));
+    }
+
+    @FXML
+    private void turnPageRight() {
+        currentPage++;
+        fillGallery();
+        currentPageLabel.setText(String.valueOf(currentPage));
+    }
+
+    @FXML
+    private void openNewFolderModal() {
+        Stage formStage = new Stage();
+        formStage.initModality(Modality.APPLICATION_MODAL);
+        formStage.setTitle("New Folder");
+
+        TextField nameField = new TextField("Folder name");
+
+        Button submitButton = new Button("Create");
+        submitButton.setOnAction(e -> {
+            // TODO
+            formStage.close();
+        });
+
+        VBox formLayout = new VBox(10);
+        formLayout.getChildren().addAll(nameField, submitButton);
+        formLayout.setPadding(new Insets(0, 20, 0, 20));
+        formLayout.setAlignment(Pos.CENTER);
+
+        Scene formScene = new Scene(formLayout, 250, 150);
+        formStage.setScene(formScene);
+
+        formStage.showAndWait();
+    }
+
     public void setModel(Gallery gallery) throws IOException {
         this.galleryModel = gallery;
-//        imagesListView.setItems(gallery.getPhotos());
-//        imagesListView.getSelectionModel().select(0);
-//        fillGallery();
         scheduler.scheduleAtFixedRate(this::fillGallery, 0, 2, TimeUnit.SECONDS);
     }
 
@@ -184,11 +206,17 @@ public class GalleryController {
 
     }
 
-    // needs to be called every 1s before the socket works
-
     private void fillGallery(){
         try {
             CommunicationHandler.getAllPhotos(galleryModel, size);
+//            int pageSize = switch (size) {
+//                case LARGE -> collumnCountLarge * collumnCountLarge;
+//                case MEDIUM -> collumnCountMedium * collumnCountMedium;
+//                case SMALL -> collumnCountSmall * collumnCountSmall;
+//                case ORIGINAL -> 1;
+//            };
+//            String serviceAddress = CommunicationHandler.getRequestAddress(size, currentPage, pageSize, currentPath);
+//            CommunicationHandler.getAllProductsPageable(galleryModel, size, serviceAddress);
 
             Platform.runLater(() -> {
                 imagesGridPane.getChildren().clear();

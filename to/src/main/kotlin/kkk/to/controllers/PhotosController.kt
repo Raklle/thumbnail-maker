@@ -89,7 +89,7 @@ class PhotosController (private val dbService: DBService) {
                         @RequestPart("path", required = false) path: String?): Flux<ImageResponse> {
         val imgSize  = when(size.uppercase()){
             "SMALL" -> Size.SMALL
-            "MEDUIM" -> Size.MEDIUM
+            "MEDIUM" -> Size.MEDIUM
             "LARGE" -> Size.LARGE
             else -> throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,

@@ -27,7 +27,7 @@ public final class Placeholders {
     }
 
     private static String buildFilePath(PhotoSize size) {
-        String basePath = "frontend/src/main/resources/assets/placeholder";
+        String basePath = "/Users/filipdziurdzia/Desktop/Studia/Semestr 5/TOPROJ/mi-pt-1500-klub_kodu_i_kufelkow/frontend/src/main/resources/assets/placeholder";
         String fileExtension = ".png";
 
         return switch (size) {
@@ -37,13 +37,6 @@ public final class Placeholders {
             case ORIGINAL -> basePath + fileExtension;
         };
     }
-
-//    public static Placeholders getInstance() {
-//        if (instance == null) {
-//            instance = new Placeholders();
-//        }
-//        return instance;
-//    }
 
     public ObjectProperty<Image> getPlaceholder(PhotoSize size) {
         return switch (size) {
