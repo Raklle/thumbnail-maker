@@ -1,6 +1,8 @@
 package kkk.to.services
 
+import kkk.to.models.Directory
 import kkk.to.models.Image
+import kkk.to.repositories.DirectoryMongoRepository
 import kkk.to.repositories.ImageMongoRepository
 import kkk.to.util.ImageResponse
 import kkk.to.util.ImageState
@@ -19,11 +21,17 @@ import reactor.core.publisher.Mono
 @Service
 class MongoService @Autowired constructor(
     private val imageMongoRepository: ImageMongoRepository,
-    private val mongoTemplate: ReactiveMongoTemplate
+    private val directoryMongoRepository: DirectoryMongoRepository,
+    private val mongoTemplate: ReactiveMongoTemplate,
+
 ) : DBService {
     override fun saveImages(images: Flux<Image>): Flux<Image> {
         return imageMongoRepository.saveAll(images)
     }
+    override fun saveDirectory(directory: Directory): Mono<Directory> {
+        return directoryMongoRepository.save(directory)
+    }
+
     override fun getAllImages(path: String): Flux<ImageResponse> {
         val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
         val projectOperation: AggregationOperation = project().
@@ -33,6 +41,11 @@ class MongoService @Autowired constructor(
         return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
     }
 
+    override fun getDirectories(path: String): Flux<Directory>{
+        val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
+        val aggregation: Aggregation = Aggregation.newAggregation(matchOperation)
+        return mongoTemplate.aggregate(aggregation, "directories", Directory::class.java)
+    }
     override fun getAllImagesBySize(size: Size, path: String): Flux<ImageResponse> {
         val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
         val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
@@ -82,11 +95,11 @@ class MongoService @Autowired constructor(
     }
 
 
-    override fun findAllPageable(pageable: Pageable, size: Size, path: String): Flux<ImageResponse> {
+    override fun findAllPageable(pageable: Pageable, size: Size, offset:Int, path: String): Flux<ImageResponse> {
         val matchOperation: MatchOperation = Aggregation.match(Criteria.where("path").`is`(path))
         val projectOperation: AggregationOperation = getProjectionToImageResponse(size)
-        val skipOperation: SkipOperation = Aggregation.skip(pageable.offset)
-        val limitOperation: LimitOperation = Aggregation.limit(pageable.pageSize.toLong())
+        val skipOperation: SkipOperation = Aggregation.skip(pageable.offset + offset)
+        val limitOperation: LimitOperation = Aggregation.limit(pageable.pageSize.toLong() - offset)
         val aggregation: Aggregation = Aggregation.newAggregation(matchOperation, projectOperation, skipOperation, limitOperation)
 
         return mongoTemplate.aggregate(aggregation, "images", ImageResponse::class.java)
