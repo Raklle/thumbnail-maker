@@ -13,7 +13,7 @@ public class PathUtils {
 
         if (parentPath != null) {
             String newPath = parentPath.toString();
-            if (Objects.equals(newPath, "/")) return "";
+            if (Objects.equals(newPath, "/") || Objects.equals(newPath, "\\") ) return "";
             return newPath;
         } else {
             return path;
