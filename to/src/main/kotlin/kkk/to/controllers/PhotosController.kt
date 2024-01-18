@@ -3,6 +3,7 @@ package kkk.to.controllers
 import kkk.to.models.Directory
 import kkk.to.models.Image
 import kkk.to.services.DBService
+import kkk.to.services.ZipService
 import kkk.to.util.ImageResponse
 import kkk.to.util.Size
 import org.springframework.data.domain.PageRequest
@@ -11,10 +12,12 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.zip
+import java.util.zip.ZipFile
 
 
 @RestController
-class PhotosController (private val dbService: DBService) {
+class PhotosController (private val dbService: DBService, private val zipService: ZipService) {
 
     @PostMapping
         fun saveImages(@RequestPart("files") images: Flux<ByteArray>, @RequestPart("path", required = false) path: String?): Flux<String> {
@@ -25,6 +28,10 @@ class PhotosController (private val dbService: DBService) {
     @PostMapping("/directory")
     fun saveDirectory(@RequestPart("path", required = false) path: String?, @RequestPart("name") name: String): Mono<String> {
         return dbService.saveDirectory(Directory(name = name, path = path?: "")).map{ directory -> directory.path + "/" + directory.name }
+    }
+    @PostMapping("/zip")
+    fun saveZip(@RequestPart("files") zips: ByteArray) {
+        zipService.handleZip(zips)
     }
 
     @GetMapping("/directory")
