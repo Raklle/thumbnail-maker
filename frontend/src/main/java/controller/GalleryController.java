@@ -208,15 +208,16 @@ public class GalleryController {
 
     private void fillGallery(){
         try {
-            CommunicationHandler.getAllPhotos(galleryModel, size);
-//            int pageSize = switch (size) {
-//                case LARGE -> collumnCountLarge * collumnCountLarge;
-//                case MEDIUM -> collumnCountMedium * collumnCountMedium;
-//                case SMALL -> collumnCountSmall * collumnCountSmall;
-//                case ORIGINAL -> 1;
-//            };
-//            String serviceAddress = CommunicationHandler.getRequestAddress(size, currentPage, pageSize, currentPath);
-//            CommunicationHandler.getAllProductsPageable(galleryModel, size, serviceAddress);
+            imagesGridPane.getChildren().clear();
+//            CommunicationHandler.getAllPhotos(galleryModel, size);
+            int pageSize = switch (size) {
+                case LARGE -> collumnCountLarge * collumnCountLarge;
+                case MEDIUM -> collumnCountMedium * collumnCountMedium;
+                case SMALL -> collumnCountSmall * collumnCountSmall;
+                case ORIGINAL -> 1;
+            };
+            String serviceAddress = CommunicationHandler.getRequestAddress(size, currentPage-1, pageSize, currentPath);
+            CommunicationHandler.getAllProductsPageable(galleryModel, size, serviceAddress);
 
             Platform.runLater(() -> {
                 imagesGridPane.getChildren().clear();

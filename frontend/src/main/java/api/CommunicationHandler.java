@@ -116,7 +116,7 @@ public class CommunicationHandler {
 
                     gallery.addPhoto(new Image(id, imageBytes, state, placeholder));
 //                    System.out.println(gallery.getPhotos().size());
-                }else if (state.equals("TO_MINIMIZE")){
+                } else if (state.equals("TO_MINIMIZE")){
                     String id = jsonObject.getString("id");
                     byte[] empty = new byte[0];
                     var image = new Image(id, empty, state, placeholder);
