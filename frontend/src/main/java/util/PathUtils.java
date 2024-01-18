@@ -1,5 +1,7 @@
 package util;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -13,7 +15,7 @@ public class PathUtils {
 
         if (parentPath != null) {
             String newPath = parentPath.toString();
-            if (Objects.equals(newPath, "/")) return "";
+            if (Objects.equals(newPath, "/") || Objects.equals(newPath, File.separator)) return "";
             return newPath;
         } else {
             return path;

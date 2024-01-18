@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GalleryController {
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
     @FXML
     private ImageView imageView;
@@ -89,12 +89,11 @@ public class GalleryController {
         directoriesListView.setItems(directoriesNames);
         directoriesListView.setOnMouseClicked(event -> {
             String selectedItem = directoriesListView.getSelectionModel().getSelectedItem();
-
-            if (Objects.equals(selectedItem, "..")) {
+            if (selectedItem == null) return;
+            else if (Objects.equals(selectedItem, "..")) {
                 currentPath = PathUtils.goUpPath(currentPath);
             }
             else currentPath = currentPath + "/" + selectedItem;
-            System.out.println(currentPath);
             fillDirectories();
             fillGallery();
         });
@@ -143,6 +142,7 @@ public class GalleryController {
         if (!filesToUpload.isEmpty()) {
             CommunicationHandler.uploadPhotos(filesToUpload, currentPath);
             clearUploadList();
+            imagesGridPane.getChildren().clear();
             fillGallery();
         }
     }
@@ -150,12 +150,14 @@ public class GalleryController {
     @FXML
     private void onSizeChangeSmall() {
         size = PhotoSize.SMALL;
+        imagesGridPane.getChildren().clear();
         fillGallery();
     }
 
     @FXML
     private void onSizeChangeMedium() {
         size = PhotoSize.MEDIUM;
+        imagesGridPane.getChildren().clear();
         fillGallery();
 
     }
@@ -163,6 +165,7 @@ public class GalleryController {
     @FXML
     private void onSizeChangeLarge() {
         size = PhotoSize.LARGE;
+        imagesGridPane.getChildren().clear();
         fillGallery();
     }
 
@@ -170,6 +173,7 @@ public class GalleryController {
     private void turnPageLeft() {
         if (currentPage > 1) {
             currentPage--;
+            imagesGridPane.getChildren().clear();
             fillGallery();
         }
         currentPageLabel.setText(String.valueOf(currentPage));
@@ -178,6 +182,7 @@ public class GalleryController {
     @FXML
     private void turnPageRight() {
         currentPage++;
+        imagesGridPane.getChildren().clear();
         fillGallery();
         currentPageLabel.setText(String.valueOf(currentPage));
     }
@@ -240,7 +245,6 @@ public class GalleryController {
 
     private void fillGallery(){
         try {
-            imagesGridPane.getChildren().clear();
 //            CommunicationHandler.getAllPhotos(galleryModel, size); <- OLD
             int pageSize = switch (size) {
                 case LARGE -> collumnCountLarge * collumnCountLarge;
