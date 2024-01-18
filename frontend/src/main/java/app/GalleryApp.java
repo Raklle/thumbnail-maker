@@ -11,7 +11,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import model.Gallery;
-import socket.WebSocketClientHandler;
 
 import java.io.IOException;
 

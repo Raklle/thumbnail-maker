@@ -24,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Gallery;
 import model.Image;
+import util.PathUtils;
 import util.PhotoSize;
 
 import java.io.File;
@@ -32,14 +33,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class GalleryController {
-
-    @FXML
-    private TextField imageNameField;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -65,7 +64,12 @@ public class GalleryController {
     @FXML
     private ListView<String> draggedFilesNamesList;
 
+    @FXML
+    private ListView<String> directoriesListView;
+
     private final ObservableList<String> draggedFilesNames = FXCollections.observableArrayList();
+
+    private final ObservableList<String> directoriesNames = FXCollections.observableArrayList();
 
     private final List<File> filesToUpload = new ArrayList<>();
 
@@ -80,8 +84,20 @@ public class GalleryController {
 
     @FXML
     public void initialize() {
-
+        fillDirectories();
         draggedFilesNamesList.setItems(draggedFilesNames);
+        directoriesListView.setItems(directoriesNames);
+        directoriesListView.setOnMouseClicked(event -> {
+            String selectedItem = directoriesListView.getSelectionModel().getSelectedItem();
+
+            if (Objects.equals(selectedItem, "..")) {
+                currentPath = PathUtils.goUpPath(currentPath);
+            }
+            else currentPath = currentPath + "/" + selectedItem;
+            System.out.println(currentPath);
+            fillDirectories();
+            fillGallery();
+        });
     }
 
     @FXML
@@ -124,9 +140,11 @@ public class GalleryController {
 
     @FXML
     private void uploadPhotos() throws IOException {
-
-        CommunicationHandler.uploadPhotos(filesToUpload);
-        clearUploadList();
+        if (!filesToUpload.isEmpty()) {
+            CommunicationHandler.uploadPhotos(filesToUpload, currentPath);
+            clearUploadList();
+            fillGallery();
+        }
     }
 
     @FXML
@@ -175,10 +193,12 @@ public class GalleryController {
         Button submitButton = new Button("Create");
         submitButton.setOnAction(e -> {
             try {
+                System.out.println("Modal: " + nameField.getText() + " " + currentPath);
                 CommunicationHandler.addFolder(nameField.getText(), currentPath);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+            fillDirectories();
             formStage.close();
         });
 
@@ -210,10 +230,18 @@ public class GalleryController {
 
     }
 
+    private void fillDirectories() {
+        try {
+            CommunicationHandler.getDirectories(directoriesNames, currentPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void fillGallery(){
         try {
             imagesGridPane.getChildren().clear();
-//            CommunicationHandler.getAllPhotos(galleryModel, size);
+//            CommunicationHandler.getAllPhotos(galleryModel, size); <- OLD
             int pageSize = switch (size) {
                 case LARGE -> collumnCountLarge * collumnCountLarge;
                 case MEDIUM -> collumnCountMedium * collumnCountMedium;
