@@ -27,7 +27,7 @@ public final class Placeholders {
     }
 
     private static String buildFilePath(PhotoSize size) {
-        String basePath = "/Users/filipdziurdzia/Desktop/Studia/Semestr 5/TOPROJ/mi-pt-1500-klub_kodu_i_kufelkow/frontend/src/main/resources/assets/placeholder";
+        String basePath = "frontend/src/main/resources/assets/placeholder";
         String fileExtension = ".png";
 
         return switch (size) {
