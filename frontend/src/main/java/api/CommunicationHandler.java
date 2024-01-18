@@ -47,6 +47,27 @@ public class CommunicationHandler {
 
     }
 
+    public static void addFolder(String name, String path) throws IOException {
+        System.out.println(name);
+        String requestAddress = serviceAddress + "directory";
+        HttpPost postRequest = new HttpPost(requestAddress);
+
+        builder.addTextBody("name", name, ContentType.TEXT_PLAIN);
+        builder.addTextBody("path", path, ContentType.TEXT_PLAIN);
+
+        postRequest.setEntity(builder.build());
+
+        HttpResponse response = httpClient.execute(postRequest);
+
+        HttpEntity responseEntity = response.getEntity();
+
+        if (responseEntity != null) {
+
+            String responseContent = EntityUtils.toString(responseEntity);
+            System.out.println("Response Content: " + responseContent);
+        }
+    }
+
     private static String getAllPhotosAddress(PhotoSize size, ArrayList<String> idList){
         String sizePath = getSizePath(size);
 

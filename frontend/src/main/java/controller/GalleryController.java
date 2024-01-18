@@ -174,7 +174,11 @@ public class GalleryController {
 
         Button submitButton = new Button("Create");
         submitButton.setOnAction(e -> {
-            // TODO
+            try {
+                CommunicationHandler.addFolder(nameField.getText(), currentPath);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             formStage.close();
         });
 
