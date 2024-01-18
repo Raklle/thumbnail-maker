@@ -13,12 +13,10 @@ public class Image {
     private final String id;
     private ObjectProperty<javafx.scene.image.Image> photoData;
     private String imageState;
-    private final Placeholders placeholders;
 
-    public Image(String id, byte[] photoData, String imageState, Placeholders placeholders) {
+    public Image(String id, byte[] photoData, String imageState) {
         this.id = id;
         this.photoData = new SimpleObjectProperty<>(new javafx.scene.image.Image(new ByteArrayInputStream(photoData)));
-        this.placeholders = placeholders;
         this.imageState = imageState;
     }
 
@@ -38,7 +36,7 @@ public class Image {
         return photoData;
     }
 
-    public void setPlaceholder(PhotoSize size){
+    public void setPlaceholder(PhotoSize size, Placeholders placeholders){
         this.photoData = placeholders.getPlaceholder(size);
     }
 

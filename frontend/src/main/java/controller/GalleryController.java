@@ -3,8 +3,6 @@ package controller;
 
 import api.CommunicationHandler;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,10 +17,9 @@ import javafx.scene.layout.StackPane;
 import model.Gallery;
 import model.Image;
 import util.PhotoSize;
+import util.Placeholders;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,48 +53,17 @@ public class GalleryController {
     @FXML
     private ListView<String> draggedFilesNamesList;
 
-    private ObservableList<String> draggedFilesNames = FXCollections.observableArrayList();
+    private final ObservableList<String> draggedFilesNames = FXCollections.observableArrayList();
+    private final List<File> filesToUpload = new ArrayList<>();
+    private static final int columnCountSmall = 5;
+    private static final int columnCountMedium = 3;
+    private static final int columnCountLarge = 2;
 
-    private List<File> filesToUpload = new ArrayList<>();
-
-    private int collumnCountSmall = 5;
-    private int collumnCountMedium = 3;
-    private int collumnCountLarge = 2;
 
 
     @FXML
     public void initialize() {
-
-//        imagesListView.setCellFactory(param -> new ListCell<>() {
-//            @Override
-//            protected void updateItem(Image item, boolean empty) {
-//                super.updateItem(item, empty);
-//
-//                if (empty || item == null) {
-//                    setText(null);
-//                    setGraphic(null);
-//                } else {
-//                    StackPane stackPane = new StackPane();
-//                    ImageView imageView = new ImageView(item.getPhotoData());
-//                    imageView.setPreserveRatio(true);
-////                    imageView.setFitHeight(50);
-//                    stackPane.getChildren().add(imageView);
-//
-//                    setGraphic(stackPane);
-//                }
-//            }
-//        });
-//
-//        imagesListView.getSelectionModel().selectedItemProperty().addListener(
-//                (observable, oldValue, newValue) -> {
-//
-//                    bindSelectedPhoto(newValue);
-//                }
-//        );
-
         draggedFilesNamesList.setItems(draggedFilesNames);
-
-
     }
 
     @FXML
@@ -166,9 +132,6 @@ public class GalleryController {
 
     public void setModel(Gallery gallery) throws IOException {
         this.galleryModel = gallery;
-//        imagesListView.setItems(gallery.getPhotos());
-//        imagesListView.getSelectionModel().select(0);
-//        fillGallery();
         scheduler.scheduleAtFixedRate(this::fillGallery, 0, 2, TimeUnit.SECONDS);
     }
 
@@ -178,7 +141,8 @@ public class GalleryController {
                     photo -> imageView.imageProperty().bind(photo.photoDataProperty())
             );
         } catch (IOException e) {
-            selectedPhoto.setPlaceholder(PhotoSize.ORIGINAL);
+
+            selectedPhoto.setPlaceholder(PhotoSize.ORIGINAL, CommunicationHandler.placeholder);
             imageView.imageProperty().bind(selectedPhoto.photoDataProperty());
         }
 
@@ -209,9 +173,9 @@ public class GalleryController {
                     imagesGridPane.add(stackPane, col, row);
                     col++;
 
-                    if (col == collumnCountLarge && size == PhotoSize.LARGE ||
-                            col == collumnCountMedium && size == PhotoSize.MEDIUM ||
-                            col == collumnCountSmall && size == PhotoSize.SMALL){
+                    if (col == columnCountLarge && size == PhotoSize.LARGE ||
+                            col == columnCountMedium && size == PhotoSize.MEDIUM ||
+                            col == columnCountSmall && size == PhotoSize.SMALL){
                         col = 0;
                         row++;
                     }

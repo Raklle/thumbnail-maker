@@ -24,7 +24,7 @@ public class CommunicationHandler {
 
     private static final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
     private static final HttpClient httpClient = HttpClients.createDefault();
-    private static final Placeholders placeholder = new Placeholders();
+    public static final Placeholders placeholder = new Placeholders();
     private static final String serviceAddress = "http://localhost:8080/";
 
     public static void uploadPhotos(List<File> files) throws IOException {
@@ -71,39 +71,38 @@ public class CommunicationHandler {
 
         HttpEntity responseEntity = response.getEntity();
 
-        if (responseEntity != null) {
-
-            String responseContent = EntityUtils.toString(responseEntity);
+        if (responseEntity == null) return;
+        String responseContent = EntityUtils.toString(responseEntity);
 //            System.out.println("Response Content: " + responseContent);
-            JSONArray jsonArray = new JSONArray(responseContent);
+        JSONArray jsonArray = new JSONArray(responseContent);
 
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                String state = jsonObject.getString("state");
-                if(state.equals("DONE")){
-                    String id = jsonObject.getString("id");
-                    String base64Image = jsonObject.getString("image");
+            String state = jsonObject.getString("state");
+            if(state.equals("DONE")){
+                String id = jsonObject.getString("id");
+                String base64Image = jsonObject.getString("image");
 
 //                    System.out.println("ID: " + id);
 //                    System.out.println("Image: " + base64Image);
-                    byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-                    gallery.addPhoto(new Image(id, imageBytes, state, placeholder));
+                gallery.addPhoto(new Image(id, imageBytes, state));
 //                    System.out.println(gallery.getPhotos().size());
-                }else if (state.equals("TO_MINIMIZE")){
-                    String id = jsonObject.getString("id");
-                    byte[] empty = new byte[0];
-                    var image = new Image(id, empty, state, placeholder);
-                    image.setPlaceholder(size);
-                    gallery.addPhoto(image);
-                }
-
-
-
+            }else if (state.equals("TO_MINIMIZE")){
+                String id = jsonObject.getString("id");
+                byte[] empty = new byte[0];
+                var image = new Image(id, empty, state);
+                image.setPlaceholder(size, placeholder);
+                gallery.addPhoto(image);
             }
+
+
+
         }
+
     }
 
     public static Optional<Image> getOriginalPhoto(String id) throws IOException {
@@ -126,9 +125,11 @@ public class CommunicationHandler {
 //            System.out.println("Image: " + base64Image);
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
-            return Optional.of(new Image(id1, imageBytes, "DONE", placeholder));
+            return Optional.of(new Image(id1, imageBytes, "DONE"));
 
         }
         return Optional.empty();
     }
+
+
 }
