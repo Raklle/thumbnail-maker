@@ -22,28 +22,25 @@ class ZipService(private val dbService: MongoService) {
             val root = rootName(entry.name)
             rootDirs.add(root)
 
-            if (!entry.isDirectory) {
+            if (entry.name.endsWith(".jpg")) {
 
 //                println("FileName: \t${name} \t Path:\t${path} ")
+                try {
+                    val inputStream = zip.getInputStream(entry)
+                    val image = ImageIO.read(inputStream)
 
-                if (entry.name.endsWith(".jpg")) {
-                    try {
-                        val inputStream = zip.getInputStream(entry)
-                        val image = ImageIO.read(inputStream)
+                    val baos = ByteArrayOutputStream()
+                    ImageIO.write(image, "jpg", baos)
 
-                        val baos = ByteArrayOutputStream()
-                        ImageIO.write(image, "jpg", baos)
-
-                        val bitarray = baos.toByteArray()
+                    val bitarray = baos.toByteArray()
 //                        println("Bitarray:\t${bitarray}")
-                        dbService.saveImages(Flux.just(Image(original = bitarray, path = originalPath + path))).subscribe()
+                    dbService.saveImages(Flux.just(Image(original = bitarray, path = originalPath + path))).subscribe()
 
-                        inputStream.close()
-                    } catch (e: IOException) {
-                        println("Error reading image file: ${e.message}")
-                    }
+                    inputStream.close()
+                } catch (e: IOException) {
+                    println("Error reading image file: ${e.message}")
                 }
-            } else {
+            } else if(entry.isDirectory) {
                 dbService.saveDirectory(Directory(path=originalPath + path, name=name)).subscribe()
 //                println("DirName: \t${name} \t Path:\t${path} ")
             }
