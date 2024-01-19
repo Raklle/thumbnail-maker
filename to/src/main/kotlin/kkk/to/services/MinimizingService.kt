@@ -30,7 +30,6 @@ class MinimizingService {
     fun minimize(image: Image, size: Size) : ByteArray? {
         val thumbnail: BufferedImage?
         try {
-            TimeUnit.SECONDS.sleep(3);
             val bufferedImage = ImageIO.read(ByteArrayInputStream(image.original))
             thumbnail = Thumbnails.of(bufferedImage)
                     .size(size.width,size.height)

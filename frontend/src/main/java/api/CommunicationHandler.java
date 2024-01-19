@@ -235,7 +235,7 @@ public class CommunicationHandler {
     }
 
 
-    public static void getAllProductsPageable(Gallery gallery, PhotoSize size, String serviceAddress) throws IOException {
+    public static boolean getAllProductsPageable(Gallery gallery, PhotoSize size, String serviceAddress) throws IOException {
         gallery.clear(size);
         HttpGet getRequest = new HttpGet(serviceAddress);
 
@@ -270,8 +270,9 @@ public class CommunicationHandler {
                     }
                 }
             }
+            return true;
         }
-
+        return false;
     }
 
     public static Optional<Image> getOriginalPhoto(String id) throws IOException {

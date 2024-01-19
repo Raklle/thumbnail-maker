@@ -145,6 +145,7 @@ public class GalleryController {
             clearUploadList();
             imagesGridPane.getChildren().clear();
             fillGallery();
+            fillDirectories();
         }
     }
 
@@ -254,40 +255,40 @@ public class GalleryController {
                 case SMALL -> columnCountSmall * columnCountSmall;
                 case ORIGINAL -> 1;
             };
-            String serviceAddress = CommunicationHandler.getRequestAddress(size, currentPage-1, pageSize, currentPath);
-            CommunicationHandler.getAllProductsPageable(galleryModel, size, serviceAddress);
+            String serviceAddress = CommunicationHandler.getRequestAddress(size, currentPage - 1, pageSize, currentPath);
+            if (CommunicationHandler.getAllProductsPageable(galleryModel, size, serviceAddress)) {
 
-            Platform.runLater(() -> {
-                imagesGridPane.getChildren().clear();
-                int row = 0;
-                int col = 0;
+                Platform.runLater(() -> {
+                    imagesGridPane.getChildren().clear();
+                    int row = 0;
+                    int col = 0;
 
-                for (Image photo : galleryModel.getPhotos()) {
-                    StackPane stackPane = new StackPane();
-                    ImageView imageView = new ImageView(photo.getPhotoData());
-                    imageView.setPreserveRatio(true);
+                    for (Image photo : galleryModel.getPhotos()) {
+                        StackPane stackPane = new StackPane();
+                        ImageView imageView = new ImageView(photo.getPhotoData());
+                        imageView.setPreserveRatio(true);
 
-                    imageView.setOnMouseClicked(e -> {
-                        bindSelectedPhoto(photo);
-                    });
+                        imageView.setOnMouseClicked(e -> {
+                            bindSelectedPhoto(photo);
+                        });
 
-                    stackPane.getChildren().add(imageView);
+                        stackPane.getChildren().add(imageView);
 
-                    imagesGridPane.add(stackPane, col, row);
-                    col++;
+                        imagesGridPane.add(stackPane, col, row);
+                        col++;
 
-                    if (col == columnCountLarge && size == PhotoSize.LARGE ||
-                            col == columnCountMedium && size == PhotoSize.MEDIUM ||
-                            col == columnCountSmall && size == PhotoSize.SMALL){
-                        col = 0;
-                        row++;
+                        if (col == columnCountLarge && size == PhotoSize.LARGE ||
+                                col == columnCountMedium && size == PhotoSize.MEDIUM ||
+                                col == columnCountSmall && size == PhotoSize.SMALL) {
+                            col = 0;
+                            row++;
+                        }
                     }
-                }
-            });
+                });
 
+            }
         } catch (IOException e) {
-            System.out.println("Gallery filled");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }
