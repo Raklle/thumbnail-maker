@@ -140,7 +140,8 @@ public class GalleryController {
     @FXML
     private void uploadPhotos() throws IOException {
         if (!filesToUpload.isEmpty()) {
-            CommunicationHandler.uploadPhotos(filesToUpload, currentPath);
+//            CommunicationHandler.uploadPhotos(filesToUpload, currentPath);
+            CommunicationHandler.uploadFiles(filesToUpload, currentPath);
             clearUploadList();
             imagesGridPane.getChildren().clear();
             fillGallery();

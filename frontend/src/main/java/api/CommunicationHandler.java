@@ -29,6 +29,38 @@ public class CommunicationHandler {
     public static final Placeholders placeholder = new Placeholders();
     private static final String serviceAddress = "http://localhost:8080/";
 
+    public static void uploadFiles(List<File> files, String path) throws IOException {
+        List<File> imageFiles = new ArrayList<>();
+        List<File> zipFiles = new ArrayList<>();
+
+        for (File file : files) {
+            if (isImageFile(file)) {
+                imageFiles.add(file);
+            } else if (isZipFile(file)) {
+                zipFiles.add(file);
+            }
+        }
+
+        if (!imageFiles.isEmpty()) {
+            uploadPhotos(imageFiles, path);
+        }
+
+        if (!zipFiles.isEmpty()) {
+            uploadZips(zipFiles);
+        }
+    }
+
+    private static boolean isImageFile(File file) {
+        String fileName = file.getName().toLowerCase();
+        return fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png");
+    }
+
+    private static boolean isZipFile(File file) {
+        String fileName = file.getName().toLowerCase();
+        return fileName.endsWith(".zip");
+    }
+
+
     public static void uploadPhotos(List<File> files, String path) throws IOException {
 
         HttpPost postRequest = new HttpPost(serviceAddress);
@@ -36,6 +68,28 @@ public class CommunicationHandler {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         files.forEach(file -> builder.addBinaryBody("files", file, ContentType.IMAGE_JPEG, "files"));
         if (!Objects.equals(path, "")) builder.addTextBody("path", path);
+
+        postRequest.setEntity(builder.build());
+
+        HttpResponse response = httpClient.execute(postRequest);
+
+        HttpEntity responseEntity = response.getEntity();
+
+        if (responseEntity != null) {
+
+            String responseContent = EntityUtils.toString(responseEntity);
+            System.out.println("Response Content: " + responseContent);
+        }
+
+    }
+
+    public static void uploadZips(List<File> files) throws IOException {
+
+        HttpPost postRequest = new HttpPost(serviceAddress + "zip");
+
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        files.forEach(file -> builder.addBinaryBody("files", file, ContentType.MULTIPART_FORM_DATA, "files"));
+//        if (!Objects.equals(path, "")) builder.addTextBody("path", path);
 
         postRequest.setEntity(builder.build());
 
