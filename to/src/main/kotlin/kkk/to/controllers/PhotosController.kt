@@ -30,8 +30,8 @@ class PhotosController (private val dbService: DBService, private val zipService
         return dbService.saveDirectory(Directory(name = name, path = path?: "")).map{ directory -> directory.path + "/" + directory.name }
     }
     @PostMapping("/zip")
-    fun saveZip(@RequestPart("files") zips: ByteArray) {
-        zipService.handleZip(zips)
+    fun saveZip(@RequestPart("path", required = false) path: String?, @RequestPart("files") zips: ByteArray) {
+        zipService.handleZip(zips, path?: "")
     }
 
     @GetMapping("/directory")

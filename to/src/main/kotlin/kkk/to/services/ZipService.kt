@@ -13,7 +13,7 @@ import kotlin.collections.HashSet
 
 @Service
 class ZipService(private val dbService: MongoService) {
-    private fun roamFolder(entries: Enumeration<out ZipEntry>, zip: ZipFile) {
+    private fun roamFolder(entries: Enumeration<out ZipEntry>, zip: ZipFile, originalPath: String) {
         val rootDirs = HashSet<String>()
 
         while (entries.hasMoreElements()) {
@@ -36,7 +36,7 @@ class ZipService(private val dbService: MongoService) {
 
                         val bitarray = baos.toByteArray()
 //                        println("Bitarray:\t${bitarray}")
-                        dbService.saveImages(Flux.just(Image(original = bitarray, path = path))).subscribe()
+                        dbService.saveImages(Flux.just(Image(original = bitarray, path = originalPath + path))).subscribe()
 
                         inputStream.close()
                     } catch (e: IOException) {
@@ -44,13 +44,13 @@ class ZipService(private val dbService: MongoService) {
                     }
                 }
             } else {
-                dbService.saveDirectory(Directory(path=path, name=name)).subscribe()
+                dbService.saveDirectory(Directory(path=originalPath + path, name=name)).subscribe()
 //                println("DirName: \t${name} \t Path:\t${path} ")
             }
         }
         rootDirs.forEach{
 //            println("RootName: \t${it}")
-            dbService.saveDirectory(Directory(path="", name=it)).subscribe()
+            dbService.saveDirectory(Directory(path=originalPath, name=it)).subscribe()
         }
     }
 
@@ -89,11 +89,11 @@ class ZipService(private val dbService: MongoService) {
         return ZipFile(tempFile)
     }
 
-    fun handleZip(data: ByteArray){
+    fun handleZip(data: ByteArray, path: String){
         val zipFile = createZipFileFromByteArray(data)
         zipFile.use { zip ->
             val entries = zip.entries()
-            roamFolder(entries, zip)
+            roamFolder(entries, zip, path)
         }
     }
 }

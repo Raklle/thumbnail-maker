@@ -46,7 +46,7 @@ public class CommunicationHandler {
         }
 
         if (!zipFiles.isEmpty()) {
-            uploadZips(zipFiles);
+            uploadZips(zipFiles,path);
         }
     }
 
@@ -83,13 +83,13 @@ public class CommunicationHandler {
 
     }
 
-    public static void uploadZips(List<File> files) throws IOException {
+    public static void uploadZips(List<File> files, String path) throws IOException {
 
         HttpPost postRequest = new HttpPost(serviceAddress + "zip");
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         files.forEach(file -> builder.addBinaryBody("files", file, ContentType.MULTIPART_FORM_DATA, "files"));
-//        if (!Objects.equals(path, "")) builder.addTextBody("path", path);
+        if (!Objects.equals(path, "")) builder.addTextBody("path", path);
 
         postRequest.setEntity(builder.build());
 
