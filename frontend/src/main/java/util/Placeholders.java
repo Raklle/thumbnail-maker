@@ -38,13 +38,6 @@ public final class Placeholders {
         };
     }
 
-//    public static Placeholders getInstance() {
-//        if (instance == null) {
-//            instance = new Placeholders();
-//        }
-//        return instance;
-//    }
-
     public ObjectProperty<Image> getPlaceholder(PhotoSize size) {
         return switch (size) {
             case SMALL -> this.small;

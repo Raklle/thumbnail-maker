@@ -20,7 +20,7 @@ import java.util.zip.ZipFile
 class PhotosController (private val dbService: DBService, private val zipService: ZipService) {
 
     @PostMapping
-        fun saveImages(@RequestPart("files") images: Flux<ByteArray>, @RequestPart("path", required = false) path: String?): Flux<String> {
+    fun saveImages(@RequestPart("files") images: Flux<ByteArray>, @RequestPart("path", required = false) path: String?): Flux<String> {
         return dbService.saveImages(images.map{
             image -> Image(original = image, path = path ?: "")
         }).mapNotNull { image -> image.id + "\n"}
@@ -93,10 +93,10 @@ class PhotosController (private val dbService: DBService, private val zipService
     @GetMapping("/photos")
     fun findAllProducts(@RequestParam("size") pageSize: Int, @RequestParam("page") pageNumber: Int,
                         @RequestParam("imgSize") size: String, @RequestParam("offset", required = false) offset: Int?,
-                        @RequestPart("path", required = false) path: String?): Flux<ImageResponse> {
+                        @RequestParam("path", required = false) path: String?): Flux<ImageResponse> {
         val imgSize  = when(size.uppercase()){
             "SMALL" -> Size.SMALL
-            "MEDUIM" -> Size.MEDIUM
+            "MEDIUM" -> Size.MEDIUM
             "LARGE" -> Size.LARGE
             else -> throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,

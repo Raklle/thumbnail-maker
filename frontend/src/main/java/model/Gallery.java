@@ -31,13 +31,15 @@ public class Gallery {
     }
 
     public void clear(PhotoSize size) {
-        if(!lastSize.equals(size)){
-            photos.clear();
-            photosId.clear();
-            lastSize = size;
-        }else{
-            photos.removeIf(it -> !it.getImageState().equals("DONE"));
-        }
-
+//        if(!lastSize.equals(size)){
+//            photos.clear();
+//            photosId.clear();
+//            lastSize = size;
+//        }else{
+//            photos.removeIf(it -> !it.getImageState().equals("DONE"));
+//        }
+        photos.clear();
+        photosId.clear();
+        lastSize = size;
     }
 }

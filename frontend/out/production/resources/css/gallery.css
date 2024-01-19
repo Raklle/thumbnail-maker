@@ -25,9 +25,3 @@
 .upload-button {
     -fx-background-color: rgb(73, 170, 211);
 }
-
-.current-page-label {
-    -fx-font-size: 18;
-    -fx-spacing: 8;
-    -fx-padding: 8;
-}
