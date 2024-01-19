@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.GridPane?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            minHeight="550.0" minWidth="1450.0"
+            minHeight="550.0" minWidth="1320.0"
             styleClass="gallery-pane"
             stylesheets="css/gallery.css"
             fx:controller="controller.GalleryController">
@@ -22,7 +22,7 @@
         </HBox>
     </top>
     <left>
-        <HBox spacing="8">
+        <HBox spacing="10">
             <ListView fx:id="directoriesListView" prefWidth="200" maxHeight="540"/>
             <VBox>
                 <ScrollPane prefHeight="540" minWidth="540">
@@ -38,7 +38,7 @@
     </left>
     <right>
         <VBox>
-            <ScrollPane prefHeight="540" minWidth="250">
+            <ScrollPane prefHeight="540" minWidth="540">
                 <ImageView fx:id="imageView"/>
             </ScrollPane>
             <HBox>
